@@ -164,14 +164,18 @@ map.on('zoomend', updateMarkerIcons);
 map.on('click', function (e) {
   const { lat, lng } = e.latlng;
   let removed = false;
+  
+  const clickDistance = 50; // 距離判定を50ピクセルに変更（30ピクセルから）
+  
   markerLayer.eachLayer(layer => {
-    if (map.distance(layer.getLatLng(), e.latlng) < 30) {
-      markerLayer.removeLayer(layer);
+    if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
+      markerLayer.removeLayer(layer); // 近すぎる場合にマーカーを消す
       removed = true;
     }
   });
+
   if (!removed) {
-    const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4); // ズームに応じたアイコンサイズ
+    const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4);
     const icon = createIcon(currentType, baseIconSize * zoomScale);
     const marker = L.marker([lat, lng], { icon: icon }).addTo(markerLayer);
     marker.options.customType = currentType;
