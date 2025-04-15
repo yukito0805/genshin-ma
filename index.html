@@ -69,13 +69,26 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 90%;
+      align-items: center;
+      max-width: 800px; /* 横幅を広く設定 */
+      width: 90%; /* 画面幅の90%を最大幅として使用 */
+    }
+
+    .map-selector strong {
+      margin-right: 10px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .map-selector .button-container {
+      display: flex;
+      flex-wrap: nowrap; /* ボタンを1行に */
+      overflow-x: auto; /* 横スクロール可能 */
+      gap: 5px;
     }
 
     .map-selector button {
-      margin: 5px;
+      margin: 0;
       padding: 8px 12px;
       font-size: 14px;
       cursor: pointer;
@@ -83,6 +96,7 @@
       border-radius: 4px;
       background: #f0f0f0;
       transition: background 0.2s;
+      flex-shrink: 0; /* ボタンが縮まないように */
     }
 
     .map-selector button:hover {
@@ -99,7 +113,11 @@
         font-size: 12px;
       }
       .map-selector {
+        max-width: 95%;
         padding: 8px;
+      }
+      .map-selector strong {
+        font-size: 12px;
       }
       .map-selector button {
         padding: 6px 10px;
@@ -121,13 +139,15 @@
 
   <div class="map-selector">
     <strong>マップ切替：</strong>
-    <button onclick="switchMap('mond')">モンド</button>
-    <button onclick="switchMap('liyue1')">璃月1</button>
-    <button onclick="switchMap('liyue2')">璃月2</button>
-    <button onclick="switchMap('inazuma')">稲妻</button>
-    <button onclick="switchMap('sumeru')">スメール</button>
-    <button onclick="switchMap('fontaine')">フォンテーヌ</button>
-    <button onclick="switchMap('natlan')">ナタ</button>
+    <div class="button-container">
+      <button onclick="switchMap('mond')">モンド</button>
+      <button onclick="switchMap('liyue1')">璃月1</button>
+      <button onclick="switchMap('liyue2')">璃月2</button>
+      <button onclick="switchMap('inazuma')">稲妻</button>
+      <button onclick="switchMap('sumeru')">スメール</button>
+      <button onclick="switchMap('fontaine')">フォンテーヌ</button>
+      <button onclick="switchMap('natlan')">ナタ</button>
+    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
