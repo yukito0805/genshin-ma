@@ -103,26 +103,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-const map = L.map('map', {
-  crs: L.CRS.Simple,
-  minZoom: -5, // ズームの最小値。変更可能
-  maxZoom: 2,  // ズームの最大値。変更可能
-  zoomSnap: 0.1, // ズームの刻み幅。変更可能
-  zoomDelta: 0.5 // ズーム時の変動幅。変更可能
-});
-
-const maps = {
-  mond: { url: 'images/mond_map.jpg', size: [3000, 1722] }, // ここでマップのサイズを変更可能
-  liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
-  liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] }
-};
-
-let currentMap = 'mond'; // 初期地図（'mond'）の設定。変更可能
-let currentType = 'hujin'; // 初期アイコンの設定。変更可能
-let overlay, imageBounds;
-
-const baseIconSize = 20; // 通常サイズの半分（ズームで変動）
-// baseIconSizeの値を変更すれば、アイコンの基本サイズを変えられます
+const baseIconSize = 20; // 1回だけにしてね
 
 function createIcon(type, size = baseIconSize) {
   let url = '';
@@ -138,108 +119,51 @@ function createIcon(type, size = baseIconSize) {
   return L.icon({ iconUrl: url, iconSize: [size, size], iconAnchor: anchor });
 }
 
-const markerLayer = L.layerGroup().addTo(map);
+function createNumberedIcon(type, number = '', size = baseIconSize) {
+  let imageUrl = '';
+  if (type === 'hujin') {
+    imageUrl = (currentMap === 'mond') ? 'images/hujin.jpg' : 'images/iwagami.jpg';
+  } else if (type === 'takara') {
+    imageUrl = 'images/takara.png';
+  } else {
+    imageUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+  }
 
-function switchMap(mapName) {
-  currentMap = mapName; // 地図の切り替え時に使用する
-  if (overlay) map.removeLayer(overlay);
-  const size = maps[mapName].size; // マップサイズを参照。変更可能
-  imageBounds = [[0, 0], [size[1], size[0]]];
-  overlay = L.imageOverlay(maps[mapName].url, imageBounds).addTo(map);
-  map.setMaxBounds(imageBounds); // マップの表示範囲を設定。変更可能
-  map.fitBounds(imageBounds); // マップをフィットさせる
-  loadMarkers();
-}
+  const iconHtml = `
+    <div class="custom-marker">
+      <img src="${imageUrl}" width="${size}" height="${size}">
+      <div class="marker-number">${number}</div>
+    </div>
+  `;
 
-function setCurrentType(type) {
-  currentType = type; // アイコンタイプの変更
-}
-
-function saveMarkers() {
-  const markers = [];
-  markerLayer.eachLayer(layer => {
-    markers.push({
-      lat: layer.getLatLng().lat,
-      lng: layer.getLatLng().lng,
-      type: layer.options.customType || 'challenge'
-    });
-  });
-  localStorage.setItem('mapMarkers_' + currentMap, JSON.stringify(markers)); // マーカー情報の保存
-}
-
-function resetMarkers() {
-  markerLayer.clearLayers(); // マーカーをリセット
-  localStorage.removeItem('mapMarkers_' + currentMap); // ローカルストレージのリセット
-}
-
-function updateMarkerIcons() {
-  markerLayer.eachLayer(layer => {
-    const type = layer.options.customType;
-    const icon = createIcon(type, baseIconSize * map.getZoomScale(map.getZoom(), 0)); // アイコンのサイズ更新
-    layer.setIcon(icon);
+  return L.divIcon({
+    html: iconHtml,
+    className: '',
+    iconSize: [size, size + 10], // +10で余裕持たせる
+    iconAnchor: [size / 2, size]
   });
 }
-
-map.on('zoomend', updateMarkerIcons);
 
 map.on('click', function (e) {
   const { lat, lng } = e.latlng;
   let removed = false;
   
-  const clickDistance = 5; // 距離判定を50ピクセルに変更（30ピクセルから）
-  
+  const clickDistance = 5;
   markerLayer.eachLayer(layer => {
     if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
-      markerLayer.removeLayer(layer); // 近すぎる場合にマーカーを消す
+      markerLayer.removeLayer(layer);
       removed = true;
     }
   });
 
   if (!removed) {
     const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4);
-    const icon = createIcon(currentType, baseIconSize * zoomScale);
+    const icon = createNumberedIcon(currentType, markerLayer.getLayers().length + 1, baseIconSize * zoomScale);
     const marker = L.marker([lat, lng], { icon: icon }).addTo(markerLayer);
     marker.options.customType = currentType;
   }
   saveMarkers();
 });
-
-switchMap('mond'); // 初期地図の読み込み
-
-// 変更可能メモ:
-// - ズームの最小値（minZoom）や最大値（maxZoom）の変更
-// - baseIconSizeを変更してアイコンのサイズを調整（ズーム時の変動にも対応）
-// - 地図の画像サイズや位置など（mapsオブジェクト内）
-// - アイコンのURLを変更して異なる画像を表示する
-// - ローカルストレージへの保存項目やデータを変更
-  const baseIconSize = 20;
-
-  function createNumberedIcon(type, number = '', size = baseIconSize) {
-    let imageUrl = '';
-    if (type === 'hujin') {
-      imageUrl = (currentMap === 'mond') ? 'images/hujin.jpg' : 'images/iwagami.jpg';
-    } else if (type === 'takara') {
-      imageUrl = 'images/takara.png';
-    } else {
-      imageUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
-    }
-
-    const iconHtml = `
-      <div class="custom-marker">
-        <img src="${imageUrl}" width="${size}" height="${size}">
-        <div class="marker-number">${number}</div>
-      </div>
-    `;
-
-    return L.divIcon({
-      html: iconHtml,
-      className: '',
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size]
-    });
-  }
-
-  // あとはマーカー追加処理のところで createNumberedIcon(type, 番号) を使うだけ！
   </script>
 </body>
 </html>
