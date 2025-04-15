@@ -60,6 +60,22 @@
     right: 0;
   }
 }
+
+.custom-marker {
+    position: relative;
+    display: inline-block;
+  }
+  .marker-number {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 1px 4px;
+    border-radius: 50%;
+    font-weight: bold;
+  }
   </style>
 </head>
 <body>
@@ -196,7 +212,34 @@ switchMap('mond'); // 初期地図の読み込み
 // - 地図の画像サイズや位置など（mapsオブジェクト内）
 // - アイコンのURLを変更して異なる画像を表示する
 // - ローカルストレージへの保存項目やデータを変更
+  const baseIconSize = 20;
 
+  function createNumberedIcon(type, number = '', size = baseIconSize) {
+    let imageUrl = '';
+    if (type === 'hujin') {
+      imageUrl = (currentMap === 'mond') ? 'images/hujin.jpg' : 'images/iwagami.jpg';
+    } else if (type === 'takara') {
+      imageUrl = 'images/takara.png';
+    } else {
+      imageUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+    }
+
+    const iconHtml = `
+      <div class="custom-marker">
+        <img src="${imageUrl}" width="${size}" height="${size}">
+        <div class="marker-number">${number}</div>
+      </div>
+    `;
+
+    return L.divIcon({
+      html: iconHtml,
+      className: '',
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size]
+    });
+  }
+
+  // あとはマーカー追加処理のところで createNumberedIcon(type, 番号) を使うだけ！
   </script>
 </body>
 </html>
