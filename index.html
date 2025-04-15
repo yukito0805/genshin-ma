@@ -70,8 +70,8 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
-      max-width: 800px; /* 横幅を広く設定 */
-      width: 90%; /* 画面幅の90%を最大幅として使用 */
+      max-width: 800px;
+      width: 90%;
     }
 
     .map-selector strong {
@@ -82,25 +82,63 @@
 
     .map-selector .button-container {
       display: flex;
-      flex-wrap: nowrap; /* ボタンを1行に */
-      overflow-x: auto; /* 横スクロール可能 */
+      flex-wrap: nowrap;
+      overflow-x: auto;
       gap: 5px;
     }
 
     .map-selector button {
       margin: 0;
-      padding: 8px 12px;
+      padding: 8px 12px 8px 24px; /* 左にアイコン分のスペース */
       font-size: 14px;
       cursor: pointer;
       border: none;
       border-radius: 4px;
       background: #f0f0f0;
       transition: background 0.2s;
-      flex-shrink: 0; /* ボタンが縮まないように */
+      flex-shrink: 0;
+      position: relative;
     }
 
     .map-selector button:hover {
       background: #e0e0e0;
+    }
+
+    /* 各マップのアイコンカラー */
+    .map-selector button::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .map-selector .map-mond::before {
+      background: #a3e4d7; /* 薄緑 */
+    }
+
+    .map-selector .map-liyue1::before,
+    .map-selector .map-liyue2::before {
+      background: #8b5a2b; /* 茶色 */
+    }
+
+    .map-selector .map-inazuma::before {
+      background: #4169e1; /* 青 */
+    }
+
+    .map-selector .map-sumeru::before {
+      background: #228b22; /* 緑 */
+    }
+
+    .map-selector .map-fontaine::before {
+      background: #87ceeb; /* 水色 */
+    }
+
+    .map-selector .map-natlan::before {
+      background: #ff0000; /* 赤 */
     }
 
     /* スマホ用の調整 */
@@ -120,8 +158,13 @@
         font-size: 12px;
       }
       .map-selector button {
-        padding: 6px 10px;
+        padding: 6px 10px 6px 20px;
         font-size: 12px;
+      }
+      .map-selector button::before {
+        width: 10px;
+        height: 10px;
+        left: 6px;
       }
     }
   </style>
@@ -140,13 +183,13 @@
   <div class="map-selector">
     <strong>マップ切替：</strong>
     <div class="button-container">
-      <button onclick="switchMap('mond')">モンド</button>
-      <button onclick="switchMap('liyue1')">璃月1</button>
-      <button onclick="switchMap('liyue2')">璃月2</button>
-      <button onclick="switchMap('inazuma')">稲妻</button>
-      <button onclick="switchMap('sumeru')">スメール</button>
-      <button onclick="switchMap('fontaine')">フォンテーヌ</button>
-      <button onclick="switchMap('natlan')">ナタ</button>
+      <button class="map-mond" onclick="switchMap('mond')">モンド</button>
+      <button class="map-liyue1" onclick="switchMap('liyue1')">璃月1</button>
+      <button class="map-liyue2" onclick="switchMap('liyue2')">璃月2</button>
+      <button class="map-inazuma" onclick="switchMap('inazuma')">稲妻</button>
+      <button class="map-sumeru" onclick="switchMap('sumeru')">スメール</button>
+      <button class="map-fontaine" onclick="switchMap('fontaine')">フォンテーヌ</button>
+      <button class="map-natlan" onclick="switchMap('natlan')">ナタ</button>
     </div>
   </div>
 
