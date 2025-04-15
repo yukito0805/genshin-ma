@@ -180,7 +180,8 @@
         }
       });
       if (!removed) {
-        const icon = createIcon(currentType, baseIconSize * map.getZoomScale(map.getZoom(), 0));
+        const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.6);
+        const icon = createIcon(currentType, baseIconSize * zoomScale);
         const marker = L.marker([lat, lng], { icon: icon }).addTo(markerLayer);
         marker.options.customType = currentType;
       }
