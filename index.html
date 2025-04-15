@@ -76,6 +76,24 @@
     <button onclick="switchMap('natlan')">ナタ</button>
   </div>
 
+  <div id="controls">
+    <select id="marker-type">
+      <option value="" selected disabled>選択してください</option>
+      <option value="hujin">瞳</option>
+      <option value="takara">宝箱</option>
+      <option value="challenge">チャレンジ</option>
+    </select>
+    <input type="text" id="marker-number" placeholder="番号（任意）">
+    <button id="save-btn">保存</button>
+    <button id="clear-btn">全削除</button>
+  </div>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS 読み込み -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="main.js"></script>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const map = L.map('map', {
