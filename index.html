@@ -55,29 +55,36 @@
   </style>
 </head>
 <body>
-  <div id="controls">
-    <select id="marker-type">
-      <option value="" selected disabled>選択してください</option>
-      <option value="hujin">瞳</option>
-      <option value="takara">宝箱</option>
-      <option value="challenge">チャレンジ</option>
-    </select>
-    <input type="text" id="marker-number" placeholder="番号（任意）">
-    <button id="save-btn">保存</button>
-    <button id="clear-btn">全削除</button>
-  </div>
-
   <div id="map"></div>
 
-  <!-- Leaflet JS 読み込み -->
+  <div class="controls">
+    <strong>ピン選択：</strong>
+    <button onclick="setCurrentType('hujin')">瞳</button>
+    <button onclick="setCurrentType('takara')">宝箱</button>
+    <button onclick="setCurrentType('challenge')">チャレンジ</button>
+    <button class="reset-button" onclick="resetMarkers()">チェック全削除</button>
+  </div>
+
+  <div class="map-selector">
+    <strong>マップ切替：</strong><br>
+    <button onclick="switchMap('mond')">モンド</button>
+    <button onclick="switchMap('liyue1')">璃月1</button>
+    <button onclick="switchMap('liyue2')">璃月2</button>
+    <button onclick="switchMap('inazuma')">稲妻</button>
+    <button onclick="switchMap('sumeru')">スメール</button>
+    <button onclick="switchMap('fontaine')">フォンテーヌ</button>
+    <button onclick="switchMap('natlan')">ナタ</button>
+  </div>
+
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const map = L.map('map', {
       crs: L.CRS.Simple,
-      minZoom: -5, // ズームの最小値。変更可能
-      maxZoom: 2,  // ズームの最大値。変更可能
-      zoomSnap: 0.1, // ズームの刻み幅。変更可能
-      zoomDelta: 0.5 // ズーム時の変動幅。変更可能
+      minZoom: -5,
+      maxZoom: 2,
+      zoomSnap: 0.1,
+      zoomDelta: 0.5
     });
 
     const maps = {
@@ -86,36 +93,55 @@
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] }
     };
 
-    let currentMap = 'mond'; 
-    let currentType = '';  // 初期状態は「何も選択されていない」
+    let currentMap = 'mond';
+    let currentType = 'hujin';
     let overlay, imageBounds;
 
-    const baseIconSize = 20; 
+    const baseIconSize = 20;
 
-    function createIcon(type, size = baseIconSize) {
-      let url = '';
-      let anchor = [size / 2, size];
+    function createNumberedIcon(type, number = '', size = baseIconSize) {
+      let imageUrl = '';
       if (type === 'hujin') {
-        url = (currentMap === 'mond') ? 'images/hujin.jpg' : 'images/iwagami.jpg';
+        imageUrl = (currentMap === 'mond') ? 'images/hujin.jpg' : 'images/iwagami.jpg';
       } else if (type === 'takara') {
-        url = 'images/takara.png';
+        imageUrl = 'images/takara.png';
       } else {
-        url = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
-        anchor = [size / 2, size];
+        imageUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
       }
-      return L.icon({ iconUrl: url, iconSize: [size, size], iconAnchor: anchor });
+
+      return L.divIcon({
+        html: `<div style="
+          position: relative;
+          width: ${size}px;
+          height: ${size}px;
+          background: url('${imageUrl}') no-repeat center center / contain;
+        ">
+          <span style="
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            background: rgba(255,255,255,0.8);
+            padding: 0 2px;
+            border-radius: 4px;
+          ">${number}</span>
+        </div>`,
+        iconSize: [size, size],
+        className: ''
+      });
     }
 
     const markerLayer = L.layerGroup().addTo(map);
 
     function switchMap(mapName) {
-      currentMap = mapName; 
+      currentMap = mapName;
       if (overlay) map.removeLayer(overlay);
       const size = maps[mapName].size;
       imageBounds = [[0, 0], [size[1], size[0]]];
       overlay = L.imageOverlay(maps[mapName].url, imageBounds).addTo(map);
-      map.setMaxBounds(imageBounds); 
-      map.fitBounds(imageBounds); 
+      map.setMaxBounds(imageBounds);
+      map.fitBounds(imageBounds);
       loadMarkers();
     }
 
@@ -143,56 +169,49 @@
     function updateMarkerIcons() {
       markerLayer.eachLayer(layer => {
         const type = layer.options.customType;
-        const icon = createIcon(type, baseIconSize * map.getZoomScale(map.getZoom(), 0));
+        const icon = createNumberedIcon(type, '', baseIconSize * map.getZoomScale(map.getZoom(), 0));
         layer.setIcon(icon);
       });
+    }
+
+    function loadMarkers() {
+      markerLayer.clearLayers();
+      const stored = localStorage.getItem('mapMarkers_' + currentMap);
+      if (stored) {
+        const markers = JSON.parse(stored);
+        markers.forEach(m => {
+          const icon = createNumberedIcon(m.type, '', baseIconSize * map.getZoomScale(map.getZoom(), 0));
+          const marker = L.marker([m.lat, m.lng], { icon }).addTo(markerLayer);
+          marker.options.customType = m.type;
+        });
+      }
     }
 
     map.on('zoomend', updateMarkerIcons);
 
     map.on('click', function (e) {
       const { lat, lng } = e.latlng;
-      if (!currentType) return;  // 「タイプが選ばれていない時はマーカーを置かない」
-      
-      const clickDistance = 5;
-      
       let removed = false;
-      
+
+      const clickDistance = 5;
+
       markerLayer.eachLayer(layer => {
         if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
-          markerLayer.removeLayer(layer); 
+          markerLayer.removeLayer(layer);
           removed = true;
         }
       });
 
       if (!removed) {
         const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4);
-        const icon = createIcon(currentType, baseIconSize * zoomScale);
-        const marker = L.marker([lat, lng], { icon: icon }).addTo(markerLayer);
+        const icon = createNumberedIcon(currentType, '', baseIconSize * zoomScale);
+        const marker = L.marker([lat, lng], { icon }).addTo(markerLayer);
         marker.options.customType = currentType;
       }
       saveMarkers();
     });
 
     switchMap('mond');
-
-    // 初期設定を「何も選択されていない」状態に
-    document.getElementById('marker-type').addEventListener('change', function() {
-      setCurrentType(this.value); 
-    });
-
-    // 保存ボタンの処理
-    document.getElementById('save-btn').addEventListener('click', function() {
-      const markerNumber = document.getElementById('marker-number').value;
-      if (currentType && markerNumber) {
-        // 保存処理
-        alert("保存されました！");
-      }
-    });
-
-    // 全削除ボタンの処理
-    document.getElementById('clear-btn').addEventListener('click', resetMarkers);
   </script>
 </body>
-
 </html>
