@@ -23,10 +23,18 @@
       padding: 6px 12px;
       cursor: pointer;
     }
+/* html と body の設定を追加 */
+html, body {
+  position: relative;  /* 親要素に対する位置を相対的に設定 */
+  margin: 0;
+  height: 100%;
+}
+
+/* マップセレクターの位置調整 */
 .map-selector {
   position: absolute;
   bottom: 10px;  /* 下部に配置 */
-  right: 10px;
+  right: 10px;   /* 右側に配置 */
   z-index: 1000;
   background: white;
   padding: 10px;
