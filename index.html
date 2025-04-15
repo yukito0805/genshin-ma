@@ -23,28 +23,23 @@
       padding: 6px 12px;
       cursor: pointer;
     }
-    .map-selector {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      background: white;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      transition: right 0.3s ease;
-    }
+.map-selector {
+  position: absolute;
+  bottom: 10px;  /* 下部に配置 */
+  right: 10px;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: right 0.3s ease;
+}
     .reset-button {
       margin-top: 10px;
       padding: 6px 12px;
       cursor: pointer;
     }
-    @media (max-width: 768px) {
-      .map-selector {
-        top: auto;
-        bottom: 10px;
-        right: 10px;
-      }
+    
       .map-selector, .pin-selector {
         right: -160px;
       }
