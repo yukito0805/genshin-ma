@@ -145,16 +145,15 @@
       localStorage.setItem('mapMarkers_' + currentMap, JSON.stringify(markers));
     }
 
-    function loadMarkers() {
-      markerLayer.clearLayers();
-      const savedMarkers = JSON.parse(localStorage.getItem('mapMarkers_' + currentMap) || '[]');
-      savedMarkers.forEach(({ lat, lng, type }) => {
-        const icon = createIcon(type, baseIconSize * map.getZoomScale(map.getZoom(), 0));
-        const marker = L.marker([lat, lng], { icon: icon }).addTo(markerLayer);
-        marker.options.customType = type;
-      });
-    }
-
+function createIcon(type, size) {
+  return L.icon({
+    iconUrl: `./icons/${type}.png`,
+    iconSize: [size, size],             // ← ここでサイズ指定（クリック範囲もこれになる）
+    iconAnchor: [size / 2, size],       // ← アイコンの足元（中央下）を地図座標に
+    popupAnchor: [0, -size / 2],        // ← ポップアップの位置を少し上に
+    className: 'custom-map-icon'        // ← カスタムスタイル用のクラス（任意）
+  });
+}
     function resetMarkers() {
       markerLayer.clearLayers();
       localStorage.removeItem('mapMarkers_' + currentMap);
