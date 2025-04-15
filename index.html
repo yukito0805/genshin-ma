@@ -169,7 +169,7 @@ map.on('click', function (e) {
   
   markerLayer.eachLayer(layer => {
     if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
-      markerLayer.removeLayer(layer); // 近すぎる場合にマーカーを消す
+      // markerLayer.removeLayer(layer); // 近すぎる場合にマーカーを消す
       removed = true;
     }
   });
