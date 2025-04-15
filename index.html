@@ -100,7 +100,7 @@
     let currentType = 'hujin';
     let overlay, imageBounds;
 
-    const baseIconSize = 30; // 通常サイズの半分（ズームで変動）
+    const baseIconSize = 20; // 通常サイズの半分（ズームで変動）
 
     function createIcon(type, size = baseIconSize) {
       let url = '';
@@ -180,7 +180,7 @@
         }
       });
       if (!removed) {
-        const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.6);
+        const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4);
         const icon = createIcon(currentType, baseIconSize * zoomScale);
         const marker = L.marker([lat, lng], { icon: icon }).addTo(markerLayer);
         marker.options.customType = currentType;
