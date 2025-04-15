@@ -165,7 +165,7 @@ map.on('click', function (e) {
   const { lat, lng } = e.latlng;
   let removed = false;
   
-  const clickDistance = 50; // 距離判定を50ピクセルに変更（30ピクセルから）
+  const clickDistance = 30; // 距離判定を50ピクセルに変更（30ピクセルから）
   
   markerLayer.eachLayer(layer => {
     if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
