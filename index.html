@@ -6,53 +6,104 @@
   <title>原神マップ：瞳・宝箱・チャレンジ</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; }
-    #map { height: 100%; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      position: relative;
+    }
+
+    #map {
+      height: 100%;
+    }
+
     .controls {
-      position: absolute;
+      position: fixed;
       top: 10px;
       left: 10px;
       z-index: 1000;
       background: white;
-      padding: 10px;
+      padding: 8px;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      max-width: 90%;
     }
-    .controls button {
-      margin: 2px;
-      padding: 6px 12px;
-      cursor: pointer;
-    }
-/* html と body の設定を追加 */
-html, body {
-  position: relative;  /* 親要素に対する位置を相対的に設定 */
-  margin: 0;
-  height: 100%;
-}
 
-/* マップセレクターの位置調整 */
-.map-selector {
-  position: absolute;
-  bottom: 10px;  /* 下部に配置 */
-  right: 10px;   /* 右側に配置 */
-  z-index: 1000;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: right 0.3s ease;
-}
+    .controls button {
+      margin: 3px;
+      padding: 6px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #f0f0f0;
+      transition: background 0.2s;
+    }
+
+    .controls button:hover {
+      background: #e0e0e0;
+    }
+
     .reset-button {
       margin-top: 10px;
       padding: 6px 12px;
       cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #f0f0f0;
+      transition: background 0.2s;
     }
-    
-      .map-selector, .pin-selector {
-        right: -160px;
+
+    .reset-button:hover {
+      background: #e0e0e0;
+    }
+
+    .map-selector {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 90%;
+    }
+
+    .map-selector button {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #f0f0f0;
+      transition: background 0.2s;
+    }
+
+    .map-selector button:hover {
+      background: #e0e0e0;
+    }
+
+    /* スマホ用の調整 */
+    @media screen and (max-width: 600px) {
+      .controls {
+        padding: 6px;
       }
-      .map-selector:hover, .pin-selector:hover {
-        right: 0;
+      .controls button {
+        padding: 5px 8px;
+        font-size: 12px;
+      }
+      .map-selector {
+        padding: 8px;
+      }
+      .map-selector button {
+        padding: 6px 10px;
+        font-size: 12px;
       }
     }
   </style>
@@ -69,7 +120,7 @@ html, body {
   </div>
 
   <div class="map-selector">
-    <strong>マップ切替：</strong><br>
+    <strong>マップ切替：</strong>
     <button onclick="switchMap('mond')">モンド</button>
     <button onclick="switchMap('liyue1')">璃月1</button>
     <button onclick="switchMap('liyue2')">璃月2</button>
@@ -78,7 +129,6 @@ html, body {
     <button onclick="switchMap('fontaine')">フォンテーヌ</button>
     <button onclick="switchMap('natlan')">ナタ</button>
   </div>
-
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
