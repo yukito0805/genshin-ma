@@ -197,7 +197,7 @@
       <button class="map-mond" onclick="switchMap('mond')">モンド</button>
       <button class="map-dragonspine" onclick="switchMap('dragonspine')">ドラゴンスパイン</button>
       <button class="map-liyue1" onclick="switchMap('liyue1')">璃月1</button>
-      <button class="map-liyue2" onclick="switchMap('liyue2')">璃月2</button>
+      <button class="map-liyue2" onclick="switchMap('liyue1')">璃月2</button>
       <button class="map-chenyu" onclick="switchMap('chenyu')">沈玉</button>
       <button class="map-inazuma" onclick="switchMap('inazuma')">稲妻</button>
       <button class="map-sumeru" onclick="switchMap('sumeru')">スメール</button>
@@ -258,25 +258,27 @@
           position: relative;
           width: ${size}px;
           height: ${size}px;
-          background: url('${imageUrl}') no-repeat center center / contain; /* containでアスペクト比を維持 */
-          background-size: 100% 100%; /* 画像をピンのサイズに完全にフィット */
-          overflow: hidden; /* 余分な部分を隠す */
+          background: url('${imageUrl}') no-repeat center center / contain;
+          background-size: 100% 100%;
+          overflow: hidden;
         ">
           <span style="
             position: absolute;
-            bottom: -16px; /* 番号をさらに下に移動してピンと分離 */
+            bottom: -18px; /* 番号をさらに下に調整 */
             left: 50%;
             transform: translateX(-50%);
             font-size: 14px;
             background: rgba(255,255,255,0.8);
             padding: 2px 4px;
             border-radius: 4px;
-            white-space: nowrap; /* 番号が折り返さない */
+            white-space: nowrap;
+            pointer-events: none; /* 番号部分がタッチを吸収しない */
           ">${number}</span>
         </div>`,
         iconSize: [size, size],
-        iconAnchor: [size / 2, size], /* アンカーをピンの中央下に */
-        className: 'custom-marker' /* カスタムクラスでデフォルトスタイルをクリア */
+        iconAnchor: [size / 2, size / 2], /* アンカーをピンの中心に */
+        popupAnchor: [0, -size / 2], /* ポップアップ位置をピンの上に */
+        className: 'custom-marker'
       });
     }
 
@@ -363,9 +365,10 @@
 
     map.on('click', function (e) {
       const { lat, lng } = e.latlng;
+      console.log(`タッチ位置: lat=${lat}, lng=${lng}`); // デバッグ用ログ
       let removed = false;
 
-      const clickDistance = 10;
+      const clickDistance = 15; // クリック範囲を拡大
 
       markerLayer.eachLayer(layer => {
         if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
@@ -378,6 +381,7 @@
         const zoomScale = map.getZoomScale(map.getZoom(), 0);
         const icon = createNumberedIcon(currentType, '', baseIconSize * zoomScale);
         const marker = L.marker([lat, lng], { icon }).addTo(markerLayer);
+        console.log(`ピン追加: lat=${lat}, lng=${lng}, type=${currentType}`); // デバッグ用ログ
         marker.options.customType = currentType;
       }
       saveMarkers();
