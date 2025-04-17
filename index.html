@@ -70,7 +70,7 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
-      max-width: 900px;
+      max-width: 800px;
       width: 90%;
     }
 
@@ -104,7 +104,6 @@
       background: #e0e0e0;
     }
 
-    /* 各マップのアイコン */
     .map-selector button::before {
       content: '';
       position: absolute;
@@ -114,16 +113,13 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
     }
 
     .map-selector .map-mond::before {
       background: #a3e4d7; /* 薄緑 */
     }
 
-    .map-selector .map-dragon::before {
+    .map-selector .map-dragonspine::before {
       background: #ffffff; /* 白 */
     }
 
@@ -148,9 +144,8 @@
       background: #ff0000; /* 赤 */
     }
 
-    /* スマホ用の調整 */
     @media screen and (max-width: 600px) {
- Hanna      .controls {
+      .controls {
         padding: 6px;
       }
       .controls button {
@@ -191,7 +186,7 @@
     <strong>マップ切替：</strong>
     <div class="button-container">
       <button class="map-mond" onclick="switchMap('mond')">モンド</button>
-      <button class="map-dragon" onclick="switchMap('dragon')">ドラゴンスパイン</button>
+      <button class="map-dragonspine" onclick="switchMap('dragonspine')">ドラゴンスパイン</button>
       <button class="map-liyue1" onclick="switchMap('liyue1')">璃月1</button>
       <button class="map-liyue2" onclick="switchMap('liyue2')">璃月2</button>
       <button class="map-inazuma" onclick="switchMap('inazuma')">稲妻</button>
@@ -213,7 +208,10 @@
 
     const maps = {
       mond: { url: 'images/mond_map.jpg', size: [3000, 1722] },
-      dragon: { url: 'images/Dragon.jpg', size: [3000, 1722 ~
+      dragonspine: { url: 'images/Dragon.jpg', size: [2746, 1722] },
+      liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
+      liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] }
+    };
 
     let currentMap = 'mond';
     let currentType = 'hujin';
@@ -226,7 +224,7 @@
       if (type === 'hujin') {
         if (currentMap === 'mond') {
           imageUrl = 'images/hujin.jpg';
-        } else if (currentMap === 'dragon') {
+        } else if (currentMap === 'dragonspine') {
           imageUrl = 'images/Crimson_Agate.jpg';
         } else {
           imageUrl = 'images/iwagami.jpg';
