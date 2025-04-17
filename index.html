@@ -70,7 +70,7 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
-      max-width: 800px;
+      max-width: 900px; /* ボタン増に対応して幅を拡張 */
       width: 90%;
     }
 
@@ -104,7 +104,7 @@
       background: #e0e0e0;
     }
 
-    /* 各マップのアイコンカラー */
+    /* 各マップのアイコン */
     .map-selector button::before {
       content: '';
       position: absolute;
@@ -114,10 +114,18 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
     }
 
     .map-selector .map-mond::before {
       background: #a3e4d7; /* 薄緑 */
+    }
+
+    .map-selector .map-dragon::before {
+      background: url('images/Crimson_Agate.jpg') no-repeat center / contain;
+      background-color: #ffffff; /* フォールバックで白 */
     }
 
     .map-selector .map-liyue1::before,
@@ -184,6 +192,7 @@
     <strong>マップ切替：</strong>
     <div class="button-container">
       <button class="map-mond" onclick="switchMap('mond')">モンド</button>
+      <button class="map-dragon" onclick="switchMap('dragon')">ドラゴンスパイン</button>
       <button class="map-liyue1" onclick="switchMap('liyue1')">璃月1</button>
       <button class="map-liyue2" onclick="switchMap('liyue2')">璃月2</button>
       <button class="map-inazuma" onclick="switchMap('inazuma')">稲妻</button>
@@ -205,6 +214,7 @@
 
     const maps = {
       mond: { url: 'images/mond_map.jpg', size: [3000, 1722] },
+      dragon: { url: 'images/Dragon.jpg', size: [3000, 1722] },
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] }
     };
