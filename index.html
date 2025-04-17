@@ -15,11 +15,11 @@
 
     #map {
       height: 100%;
-      width: 100%; /* 幅を明示的に指定 */
-      position: absolute; /* マップが画面全体を覆う */
+      width: 100%;
+      position: absolute;
       top: 0;
       left: 0;
-      z-index: 1; /* マップが最下層 */
+      z-index: 1;
     }
 
     .controls {
@@ -218,10 +218,10 @@
 
     const maps = {
       mond: { url: 'images/mond_map.jpg', size: [3000, 1722] },
-      dragonspine: { url: 'images/Dragon.jpg', size: [2746, 2500] },
+      dragonspine: { url: 'images/Dragon.jpg', size: [2746, 1722] },
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] },
-      chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2600] }
+      chenyu: { url: 'images/thingyoku.jpg', size: [3000, 1722] }
       // 未定義マップ（稲妻、スメール、フォンテーヌ、ナタ）はコメントアウト
       // inazuma: { url: 'images/inazuma.jpg', size: [3000, 1722] },
       // sumeru: { url: 'images/sumeru.jpg', size: [3000, 1722] },
@@ -258,35 +258,51 @@
           position: relative;
           width: ${size}px;
           height: ${size}px;
-          background: url('${imageUrl}') no-repeat center center / cover;
+          background: url('${imageUrl}') no-repeat center center / contain; /* containでアスペクト比を維持 */
+          background-size: 100% 100%; /* 画像をピンのサイズに完全にフィット */
+          overflow: hidden; /* 余分な部分を隠す */
         ">
           <span style="
             position: absolute;
-            bottom: -12px;
+            bottom: -16px; /* 番号をさらに下に移動してピンと分離 */
             left: 50%;
             transform: translateX(-50%);
             font-size: 14px;
             background: rgba(255,255,255,0.8);
             padding: 2px 4px;
             border-radius: 4px;
+            white-space: nowrap; /* 番号が折り返さない */
           ">${number}</span>
         </div>`,
         iconSize: [size, size],
-        className: ''
+        iconAnchor: [size / 2, size], /* アンカーをピンの中央下に */
+        className: 'custom-marker' /* カスタムクラスでデフォルトスタイルをクリア */
       });
     }
+
+    // カスタムマーカーのスタイルをクリア
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .custom-marker {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
 
     const markerLayer = L.layerGroup().addTo(map);
 
     function switchMap(mapName) {
-      // マップが定義されているか確認
       if (!maps[mapName]) {
         console.warn(`マップ "${mapName}" は定義されていません。モンドにフォールバックします。`);
-        mapName = 'mond'; // 未定義の場合はモンドにフォールバック
+        mapName = 'mond';
       }
 
       currentMap = mapName;
-      console.log(`マップ切り替え: ${mapName}, URL: ${maps[mapName].url}`); // デバッグ用ログ
+      console.log(`マップ切り替え: ${mapName}, URL: ${maps[mapName].url}`);
 
       if (overlay) map.removeLayer(overlay);
       const size = maps[mapName].size;
@@ -367,7 +383,6 @@
       saveMarkers();
     });
 
-    // 初期マップの読み込み
     switchMap('mond');
   </script>
 </body>
