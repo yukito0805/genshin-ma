@@ -15,11 +15,6 @@
 
     #map {
       height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
     }
 
     .controls {
@@ -41,12 +36,12 @@
       cursor: pointer;
       border: none;
       border-radius: 4px;
-      background: #f0f0f0 !important;
+      background: #f0f0f0;
       transition: background 0.2s;
     }
 
     .controls button:hover {
-      background: #e0e0e0 !important;
+      background: #e0e0e0;
     }
 
     .reset-button {
@@ -55,12 +50,12 @@
       cursor: pointer;
       border: none;
       border-radius: 4px;
-      background: #f0f0f0 !important;
+      background: #f0f0f0;
       transition: background 0.2s;
     }
 
     .reset-button:hover {
-      background: #e0e0e0 !important;
+      background: #e0e0e0;
     }
 
     .map-selector {
@@ -197,7 +192,7 @@
       <button class="map-mond" onclick="switchMap('mond')">モンド</button>
       <button class="map-dragonspine" onclick="switchMap('dragonspine')">ドラゴンスパイン</button>
       <button class="map-liyue1" onclick="switchMap('liyue1')">璃月1</button>
-      <button class="map-liyue2" onclick="switchMap('liyue1')">璃月2</button>
+      <button class="map-liyue2" onclick="switchMap('liyue2')">璃月2</button>
       <button class="map-chenyu" onclick="switchMap('chenyu')">沈玉</button>
       <button class="map-inazuma" onclick="switchMap('inazuma')">稲妻</button>
       <button class="map-sumeru" onclick="switchMap('sumeru')">スメール</button>
@@ -218,22 +213,17 @@
 
     const maps = {
       mond: { url: 'images/mond_map.jpg', size: [3000, 1722] },
-      dragonspine: { url: 'images/Dragon.jpg', size: [2746, 1722] },
+      dragonspine: { url: 'images/Dragon.jpg', size: [2746, 2500] },
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] },
-      chenyu: { url: 'images/thingyoku.jpg', size: [3000, 1722] }
-      // 未定義マップ（稲妻、スメール、フォンテーヌ、ナタ）はコメントアウト
-      // inazuma: { url: 'images/inazuma.jpg', size: [3000, 1722] },
-      // sumeru: { url: 'images/sumeru.jpg', size: [3000, 1722] },
-      // fontaine: { url: 'images/fontaine.jpg', size: [3000, 1722] },
-      // natlan: { url: 'images/natlan.jpg', size: [3000, 1722] }
+      chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2600] }
     };
 
     let currentMap = 'mond';
     let currentType = 'hujin';
     let overlay, imageBounds;
 
-    const baseIconSize = 30;
+    const baseIconSize = 50;
 
     function createNumberedIcon(type, number = '', size = baseIconSize) {
       let imageUrl = '';
@@ -259,64 +249,34 @@
           width: ${size}px;
           height: ${size}px;
           background: url('${imageUrl}') no-repeat center center / contain;
-          background-size: 100% 100%;
-          overflow: hidden;
         ">
           <span style="
             position: absolute;
-            bottom: -18px; /* 番号をさらに下に調整 */
+            bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 14px;
+            font-size: 12px;
             background: rgba(255,255,255,0.8);
-            padding: 2px 4px;
+            padding: 0 2px;
             border-radius: 4px;
-            white-space: nowrap;
-            pointer-events: none; /* 番号部分がタッチを吸収しない */
           ">${number}</span>
         </div>`,
         iconSize: [size, size],
-        iconAnchor: [size / 2, size / 2], /* アンカーをピンの中心に */
-        popupAnchor: [0, -size / 2], /* ポップアップ位置をピンの上に */
-        className: 'custom-marker'
+        className: ''
       });
     }
-
-    // カスタムマーカーのスタイルをクリア
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .custom-marker {
-        background: none !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-    `;
-    document.head.appendChild(style);
 
     const markerLayer = L.layerGroup().addTo(map);
 
     function switchMap(mapName) {
-      if (!maps[mapName]) {
-        console.warn(`マップ "${mapName}" は定義されていません。モンドにフォールバックします。`);
-        mapName = 'mond';
-      }
-
       currentMap = mapName;
-      console.log(`マップ切り替え: ${mapName}, URL: ${maps[mapName].url}`);
-
       if (overlay) map.removeLayer(overlay);
       const size = maps[mapName].size;
       imageBounds = [[0, 0], [size[1], size[0]]];
-      try {
-        overlay = L.imageOverlay(maps[mapName].url, imageBounds).addTo(map);
-        map.setMaxBounds(imageBounds);
-        map.fitBounds(imageBounds);
-        loadMarkers();
-      } catch (error) {
-        console.error(`マップ "${mapName}" の読み込みに失敗しました:`, error);
-      }
+      overlay = L.imageOverlay(maps[mapName].url, imageBounds).addTo(map);
+      map.setMaxBounds(imageBounds);
+      map.fitBounds(imageBounds);
+      loadMarkers();
     }
 
     function setCurrentType(type) {
@@ -365,10 +325,9 @@
 
     map.on('click', function (e) {
       const { lat, lng } = e.latlng;
-      console.log(`タッチ位置: lat=${lat}, lng=${lng}`); // デバッグ用ログ
       let removed = false;
 
-      const clickDistance = 15; // クリック範囲を拡大
+      const clickDistance = 5;
 
       markerLayer.eachLayer(layer => {
         if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
@@ -378,10 +337,9 @@
       });
 
       if (!removed) {
-        const zoomScale = map.getZoomScale(map.getZoom(), 0);
+        const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4);
         const icon = createNumberedIcon(currentType, '', baseIconSize * zoomScale);
         const marker = L.marker([lat, lng], { icon }).addTo(markerLayer);
-        console.log(`ピン追加: lat=${lat}, lng=${lng}, type=${currentType}`); // デバッグ用ログ
         marker.options.customType = currentType;
       }
       saveMarkers();
