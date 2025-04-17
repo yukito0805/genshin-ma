@@ -15,6 +15,11 @@
 
     #map {
       height: 100%;
+      width: 100%; /* 幅を明示的に指定 */
+      position: absolute; /* マップが画面全体を覆う */
+      top: 0;
+      left: 0;
+      z-index: 1; /* マップが最下層 */
     }
 
     .controls {
@@ -36,12 +41,12 @@
       cursor: pointer;
       border: none;
       border-radius: 4px;
-      background: #f0f0f0 !important; /* 背景色を強制適用 */
+      background: #f0f0f0 !important;
       transition: background 0.2s;
     }
 
     .controls button:hover {
-      background: #e0e0e0 !important; /* ホバー時の色を強制適用 */
+      background: #e0e0e0 !important;
     }
 
     .reset-button {
@@ -197,7 +202,7 @@
       <button class="map-inazuma" onclick="switchMap('inazuma')">稲妻</button>
       <button class="map-sumeru" onclick="switchMap('sumeru')">スメール</button>
       <button class="map-fontaine" onclick="switchMap('fontaine')">フォンテーヌ</button>
-      <button Lace="map-natlan" onclick="switchMap('natlan')">ナタ</button>
+      <button class="map-natlan" onclick="switchMap('natlan')">ナタ</button>
     </div>
   </div>
 
@@ -217,6 +222,11 @@
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] },
       chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2500] }
+      // 未定義マップ（稲妻、スメール、フォンテーヌ、ナタ）はコメントアウト
+      // inazuma: { url: 'images/inazuma.jpg', size: [3000, 1722] },
+      // sumeru: { url: 'images/sumeru.jpg', size: [3000, 1722] },
+      // fontaine: { url: 'images/fontaine.jpg', size: [3000, 1722] },
+      // natlan: { url: 'images/natlan.jpg', size: [3000, 1722] }
     };
 
     let currentMap = 'mond';
@@ -248,7 +258,7 @@
           position: relative;
           width: ${size}px;
           height: ${size}px;
-          background: url('${imageUrl}') no-repeat center center / cover; /* coverで画像を完全にフィット */
+          background: url('${imageUrl}') no-repeat center center / cover;
         ">
           <span style="
             position: absolute;
@@ -262,21 +272,33 @@
           ">${number}</span>
         </div>`,
         iconSize: [size, size],
-        className: '' // デフォルトのLeafletクラスをクリア
+        className: ''
       });
     }
 
     const markerLayer = L.layerGroup().addTo(map);
 
     function switchMap(mapName) {
+      // マップが定義されているか確認
+      if (!maps[mapName]) {
+        console.warn(`マップ "${mapName}" は定義されていません。モンドにフォールバックします。`);
+        mapName = 'mond'; // 未定義の場合はモンドにフォールバック
+      }
+
       currentMap = mapName;
+      console.log(`マップ切り替え: ${mapName}, URL: ${maps[mapName].url}`); // デバッグ用ログ
+
       if (overlay) map.removeLayer(overlay);
       const size = maps[mapName].size;
       imageBounds = [[0, 0], [size[1], size[0]]];
-      overlay = L.imageOverlay(maps[mapName].url, imageBounds).addTo(map);
-      map.setMax ultimeBounds(imageBounds);
-      map.fitBounds(imageBounds);
-      loadMarkers();
+      try {
+        overlay = L.imageOverlay(maps[mapName].url, imageBounds).addTo(map);
+        map.setMaxBounds(imageBounds);
+        map.fitBounds(imageBounds);
+        loadMarkers();
+      } catch (error) {
+        console.error(`マップ "${mapName}" の読み込みに失敗しました:`, error);
+      }
     }
 
     function setCurrentType(type) {
@@ -345,6 +367,7 @@
       saveMarkers();
     });
 
+    // 初期マップの読み込み
     switchMap('mond');
   </script>
 </body>
