@@ -116,7 +116,7 @@
     }
 
     .map-selector .map-mond::before {
-      background: #a3e4d7; /* 薄緑 */
+      background ([A3E4D7]background: #a3e4d7; /* 薄緑 */
     }
 
     .map-selector .map-dragonspine::before {
@@ -213,17 +213,17 @@
 
     const maps = {
       mond: { url: 'images/mond_map.jpg', size: [3000, 1722] },
-      dragonspine: { url: 'images/Dragon.jpg', size: [2746, 1722] },
+      dragonspine: { url: 'images/Dragon.jpg', size: [2746, 2500] },
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] },
-      chenyu: { url: 'images/thingyoku.jpg', size: [2658, 3000] }
+      chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2500] }
     };
 
     let currentMap = 'mond';
     let currentType = 'hujin';
     let overlay, imageBounds;
 
-    const baseIconSize = 30;
+    const baseIconSize = 30; // ピンの基本サイズを20から30に増加
 
     function createNumberedIcon(type, number = '', size = baseIconSize) {
       let imageUrl = '';
@@ -252,12 +252,12 @@
         ">
           <span style="
             position: absolute;
-            bottom: -10px;
+            bottom: -12px; /* サイズ増加に伴い調整 */
             left: 50%;
             transform: translateX(-50%);
-            font-size: 12px;
+            font-size: 14px; /* フォントサイズを12から14に */
             background: rgba(255,255,255,0.8);
-            padding: 0 2px;
+            padding: 2px 4px; /* パディングを少し増加 */
             border-radius: 4px;
           ">${number}</span>
         </div>`,
@@ -327,7 +327,7 @@
       const { lat, lng } = e.latlng;
       let removed = false;
 
-      const clickDistance = 5;
+      const clickDistance = 10; // ピンのサイズ増加に伴いクリック範囲を拡大
 
       markerLayer.eachLayer(layer => {
         if (map.distance(layer.getLatLng(), e.latlng) < clickDistance) {
@@ -337,7 +337,7 @@
       });
 
       if (!removed) {
-        const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4);
+        const zoomScale = map.getZoomScale(map.getZoom(), 0); // スケール係数をシンプルに
         const icon = createNumberedIcon(currentType, '', baseIconSize * zoomScale);
         const marker = L.marker([lat, lng], { icon }).addTo(markerLayer);
         marker.options.customType = currentType;
