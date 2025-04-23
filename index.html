@@ -26,7 +26,7 @@
       padding: 8px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      max-width: 90%;
+      max-width: 400px; /* カウント横並び対応 */
     }
 
     .controls select {
@@ -37,7 +37,7 @@
       border-radius: 4px;
       background: #f0f0f0;
       cursor: pointer;
-      width: 150px;
+      width: 120px; /* 横幅を狭く */
     }
 
     .controls select:focus {
@@ -69,7 +69,7 @@
       padding: 10px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      max-width: 300px;
+      max-width: 350px; /* ドロップダウン幅対応 */
       width: 90%;
       display: flex;
       align-items: center;
@@ -83,12 +83,13 @@
 
     .map-selector select {
       padding: 6px;
-      font-size: 14px;
+      font-size: 18px;
       border: 1px solid #ccc;
       border-radius: 4px;
       background: #f0f0f0;
       cursor: pointer;
       flex-grow: 1;
+      width: 250px;
     }
 
     .map-selector select:focus {
@@ -99,20 +100,29 @@
     .counts {
       margin-top: 10px;
       font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
-    .counts p {
-      margin: 3px 0;
+    .count-row {
+      display: flex;
+      gap: 15px;
     }
 
-    @media screen and (max-width: 500px) {
+    .count-row span {
+      flex: 1;
+      text-align: center;
+    }
+
+    @media screen and (max-width: 600px) {
       .controls {
         padding: 6px;
       }
       .controls select {
-        padding: 8px;
-        font-size: 16px;
-        width: 200px;
+        padding: 5px;
+        font-size: 12px;
+        width: 100px; /* スマホではさらに狭く */
       }
       .reset-button {
         padding: 5px 8px;
@@ -126,17 +136,15 @@
         font-size: 12px;
       }
       .map-selector select {
-  padding: 6px;
-  font-size: 18px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f0f0f0;
-  cursor: pointer;
-  flex-grow: 1;
-  width: 250px; /* 幅を追加 */
+        font-size: 14px;
+        padding: 8px;
+        width: 200px;
       }
       .counts {
-        font-size: 16px;
+        font-size: 12px;
+      }
+      .count-row {
+        gap: 10px;
       }
     }
   </style>
@@ -156,12 +164,16 @@
     </select>
     <button class="reset-button" onclick="resetMarkers()">チェック全削除</button>
     <div class="counts">
-      <p>瞳: <span id="hujin-count">0</span></p>
-      <p>普通の宝箱: <span id="takara-hutu-count">0</span></p>
-      <p>精巧な宝箱: <span id="takara-seikou-count">0</span></p>
-      <p>貴重な宝箱: <span id="takara-kityou-count">0</span></p>
-      <p>豪華な宝箱: <span id="takara-gouka-count">0</span></p>
-      <p>珍奇な宝箱: <span id="takara-tinnmyou-count">0</span></p>
+      <div class="count-row">
+        <span>瞳: <span id="hujin-count">0</span></span>
+        <span>普通: <span id="takara-hutu-count">0</span></span>
+        <span>精巧: <span id="takara-seikou-count">0</span></span>
+      </div>
+      <div class="count-row">
+        <span>貴重: <span id="takara-kityou-count">0</span></span>
+        <span>豪華: <span id="takara-gouka-count">0</span></span>
+        <span>珍奇: <span id="takara-tinnmyou-count">0</span></span>
+      </div>
     </div>
   </div>
 
@@ -196,7 +208,7 @@
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] },
       chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2700] },
-      inazuma: { url: 'images/inazuma1.png', size: [3000, 3190] },
+      inazuma: { url: 'images/inazuma1.png', size: [3000, 1722] },
       sumeru: { url: 'images/sumeru.jpg', size: [3000, 1722] },
       fontaine: { url: 'images/fontaine.jpg', size: [3000, 1722] },
       natlan: { url: 'images/natlan.jpg', size: [3000, 1722] }
@@ -350,6 +362,13 @@
 
     map.on('click', function (e) {
       const { lat, lng } = e.latlng;
+
+      // 画像範囲外のクリックを無視
+      if (lat < imageBounds[0][0] || lat > imageBounds[1][0] ||
+          lng < imageBounds[0][1] || lng > imageBounds[1][1]) {
+        return;
+      }
+
       let removed = false;
 
       const clickDistance = 5;
