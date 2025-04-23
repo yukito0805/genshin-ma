@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>原神マップ：瞳・宝箱・チャレンジ</title>
+  <title>原神マップ：瞳・宝箱</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body {
@@ -29,19 +29,20 @@
       max-width: 90%;
     }
 
-    .controls button {
+    .controls select {
       margin: 3px;
-      padding: 6px 10px;
+      padding: 6px;
       font-size: 14px;
-      cursor: pointer;
-      border: none;
+      border: 1px solid #ccc;
       border-radius: 4px;
       background: #f0f0f0;
-      transition: background 0.2s;
+      cursor: pointer;
+      width: 150px;
     }
 
-    .controls button:hover {
-      background: #e0e0e0;
+    .controls select:focus {
+      outline: none;
+      border-color: #888;
     }
 
     .reset-button {
@@ -68,10 +69,10 @@
       padding: 10px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      max-width: 300px;
+      width: 90%;
       display: flex;
       align-items: center;
-      max-width: 800px;
-      width: 90%;
     }
 
     .map-selector strong {
@@ -80,79 +81,40 @@
       white-space: nowrap;
     }
 
-    .map-selector .button-container {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      gap: 5px;
-    }
-
-    .map-selector button {
-      margin: 0;
-      padding: 8px 12px 8px 24px;
+    .map-selector select {
+      padding: 6px;
       font-size: 14px;
-      cursor: pointer;
-      border: none;
+      border: 1px solid #ccc;
       border-radius: 4px;
       background: #f0f0f0;
-      transition: background 0.2s;
-      flex-shrink: 0;
-      position: relative;
+      cursor: pointer;
+      flex-grow: 1;
     }
 
-    .map-selector button:hover {
-      background: #e0e0e0;
+    .map-selector select:focus {
+      outline: none;
+      border-color: #888;
     }
 
-    .map-selector button::before {
-      content: '';
-      position: absolute;
-      left: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
+    .counts {
+      margin-top: 10px;
+      font-size: 14px;
     }
 
-    .map-selector .map-mond::before {
-      background: #a3e4d7; /* 薄緑 */
-    }
-
-    .map-selector .map-dragonspine::before {
-      background: #ffffff; /* 白 */
-    }
-
-    .map-selector .map-liyue1::before,
-    .map-selector .map-liyue2::before {
-      background: #8b5a2b; /* 茶色 */
-    }
-
-    .map-selector .map-chenyu::before {
-      background: #808080; /* グレー */
-    }
-
-    .map-selector .map-inazuma::before {
-      background: #4169e1; /* 青 */
-    }
-
-    .map-selector .map-sumeru::before {
-      background: #228b22; /* 緑 */
-    }
-
-    .map-selector .map-fontaine::before {
-      background: #87ceeb; /* 水色 */
-    }
-
-    .map-selector .map-natlan::before {
-      background: #ff0000; /* 赤 */
+    .counts p {
+      margin: 3px 0;
     }
 
     @media screen and (max-width: 600px) {
       .controls {
         padding: 6px;
       }
-      .controls button {
+      .controls select {
+        padding: 5px;
+        font-size: 12px;
+        width: 120px;
+      }
+      .reset-button {
         padding: 5px 8px;
         font-size: 12px;
       }
@@ -163,14 +125,12 @@
       .map-selector strong {
         font-size: 12px;
       }
-      .map-selector button {
-        padding: 6px 10px 6px 20px;
+      .map-selector select {
         font-size: 12px;
+        padding: 5px;
       }
-      .map-selector button::before {
-        width: 10px;
-        height: 10px;
-        left: 6px;
+      .counts {
+        font-size: 12px;
       }
     }
   </style>
@@ -180,25 +140,38 @@
 
   <div class="controls">
     <strong>ピン選択：</strong>
-    <button onclick="setCurrentType('hujin')">瞳</button>
-    <button onclick="setCurrentType('takara')">宝箱</button>
-    <button onclick="setCurrentType('challenge')">チャレンジ</button>
+    <select id="pin-type" onchange="setCurrentType(this.value)">
+      <option value="hujin">瞳</option>
+      <option value="takara_hutu">普通の宝箱</option>
+      <option value="takara_seikou">精巧な宝箱</option>
+      <option value="takara_kityou">貴重な宝箱</option>
+      <option value="takara_gouka">豪華な宝箱</option>
+      <option value="takara_tinnmyou">珍奇な宝箱</option>
+    </select>
     <button class="reset-button" onclick="resetMarkers()">チェック全削除</button>
+    <div class="counts">
+      <p>瞳: <span id="hujin-count">0</span></p>
+      <p>普通の宝箱: <span id="takara-hutu-count">0</span></p>
+      <p>精巧な宝箱: <span id="takara-seikou-count">0</span></p>
+      <p>貴重な宝箱: <span id="takara-kityou-count">0</span></p>
+      <p>豪華な宝箱: <span id="takara-gouka-count">0</span></p>
+      <p>珍奇な宝箱: <span id="takara-tinnmyou-count">0</span></p>
+    </div>
   </div>
 
   <div class="map-selector">
     <strong>マップ切替：</strong>
-    <div class="button-container">
-      <button class="map-mond" onclick="switchMap('mond')">モンド</button>
-      <button class="map-dragonspine" onclick="switchMap('dragonspine')">ドラゴンスパイン</button>
-      <button class="map-liyue1" onclick="switchMap('liyue1')">璃月1</button>
-      <button class="map-liyue2" onclick="switchMap('liyue2')">璃月2</button>
-      <button class="map-chenyu" onclick="switchMap('chenyu')">沈玉</button>
-      <button class="map-inazuma" onclick="switchMap('inazuma')">稲妻</button>
-      <button class="map-sumeru" onclick="switchMap('sumeru')">スメール</button>
-      <button class="map-fontaine" onclick="switchMap('fontaine')">フォンテーヌ</button>
-      <button class="map-natlan" onclick="switchMap('natlan')">ナタ</button>
-    </div>
+    <select id="map-select" onchange="switchMap(this.value)">
+      <option value="mond">モンド</option>
+      <option value="dragonspine">ドラゴンスパイン</option>
+      <option value="liyue1">璃月1</option>
+      <option value="liyue2">璃月2</option>
+      <option value="chenyu">沈玉</option>
+      <option value="inazuma">稲妻</option>
+      <option value="sumeru">スメール</option>
+      <option value="fontaine">フォンテーヌ</option>
+      <option value="natlan">ナタ</option>
+    </select>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -216,12 +189,24 @@
       dragonspine: { url: 'images/Dragon.jpg', size: [2746, 2500] },
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] },
-      chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2700] }
+      chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2700] },
+      inazuma: { url: 'images/inazuma1.png', size: [3000, 3190] },
+      sumeru: { url: 'images/sumeru.jpg', size: [3000, 1722] },
+      fontaine: { url: 'images/fontaine.jpg', size: [3000, 1722] },
+      natlan: { url: 'images/natlan.jpg', size: [3000, 1722] }
     };
 
     let currentMap = 'mond';
     let currentType = 'hujin';
     let overlay, imageBounds;
+    let counts = {
+      hujin: 0,
+      takara_hutu: 0,
+      takara_seikou: 0,
+      takara_kityou: 0,
+      takara_gouka: 0,
+      takara_tinnmyou: 0
+    };
 
     const baseIconSize = 50;
 
@@ -234,33 +219,43 @@
           imageUrl = 'images/Crimson_Agate.jpg';
         } else if (currentMap === 'chenyu') {
           imageUrl = 'images/Spirit_Carp.jpg';
+        } else if (currentMap === 'inazuma') {
+          imageUrl = 'images/inazumahitomi.png';
         } else {
           imageUrl = 'images/iwagami.jpg';
         }
-      } else if (type === 'takara') {
-        imageUrl = 'images/takara.png';
-      } else {
-        imageUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+      } else if (type === 'takara_hutu') {
+        imageUrl = 'images/hutu.png';
+      } else if (type === 'takara_seikou') {
+        imageUrl = 'images/seikou.png';
+      } else if (type === 'takara_kityou') {
+        imageUrl = 'images/kityou.png';
+      } else if (type === 'takara_gouka') {
+        imageUrl = 'images/gouka.png';
+      } else if (type === 'takara_tinnmyou') {
+        imageUrl = 'images/tinnmyou.png';
       }
 
       return L.divIcon({
-        html: `<div style="
-          position: relative;
-          width: ${size}px;
-          height: ${size}px;
-          background: url('${imageUrl}') no-repeat center center / contain;
-        ">
-          <span style="
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            background: rgba(255,255,255,0.8);
-            padding: 0 2px;
-            border-radius: 4px;
-          ">${number}</span>
-        </div>`,
+        html: `
+          <div style="
+            position: relative;
+            width: ${size}px;
+            height: ${size}px;
+            background: url('${imageUrl}') no-repeat center center / contain;
+          ">
+            <span style="
+              position: absolute;
+              bottom: -10px;
+              left: 50%;
+              transform: translateX(-50%);
+              font-size: 12px;
+              background: rgba(255,255,255,0.8);
+              padding: 0 2px;
+              border-radius: 4px;
+            ">${number}</span>
+          </div>
+        `,
         iconSize: [size, size],
         className: ''
       });
@@ -283,21 +278,44 @@
       currentType = type;
     }
 
+    function updateCounts() {
+      counts = {
+        hujin: 0,
+        takara_hutu: 0,
+        takara_seikou: 0,
+        takara_kityou: 0,
+        takara_gouka: 0,
+        takara_tinnmyou: 0
+      };
+      markerLayer.eachLayer(layer => {
+        const type = layer.options.customType;
+        if (counts.hasOwnProperty(type)) counts[type]++;
+      });
+      document.getElementById('hujin-count').textContent = counts.hujin;
+      document.getElementById('takara-hutu-count').textContent = counts.takara_hutu;
+      document.getElementById('takara-seikou-count').textContent = counts.takara_seikou;
+      document.getElementById('takara-kityou-count').textContent = counts.takara_kityou;
+      document.getElementById('takara-gouka-count').textContent = counts.takara_gouka;
+      document.getElementById('takara-tinnmyou-count').textContent = counts.takara_tinnmyou;
+    }
+
     function saveMarkers() {
       const markers = [];
       markerLayer.eachLayer(layer => {
         markers.push({
           lat: layer.getLatLng().lat,
           lng: layer.getLatLng().lng,
-          type: layer.options.customType || 'challenge'
+          type: layer.options.customType || 'hujin'
         });
       });
       localStorage.setItem('mapMarkers_' + currentMap, JSON.stringify(markers));
+      updateCounts();
     }
 
     function resetMarkers() {
       markerLayer.clearLayers();
       localStorage.removeItem('mapMarkers_' + currentMap);
+      updateCounts();
     }
 
     function updateMarkerIcons() {
@@ -319,6 +337,7 @@
           marker.options.customType = m.type;
         });
       }
+      updateCounts();
     }
 
     map.on('zoomend', updateMarkerIcons);
