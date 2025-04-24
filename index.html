@@ -31,13 +31,13 @@
 
     .controls select {
       margin: 3px;
-      padding: 8px;
-      font-size: 18px;
+      padding: 6px;
+      font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 4px;
       background: #f0f0f0;
       cursor: pointer;
-      width: 160px;
+      width: 120px;
     }
 
     .controls select:focus {
@@ -143,7 +143,7 @@
         font-size: 12px;
       }
       .map-selector select {
-        font-size: 18px;
+        font-size: 14px;
         padding: 8px;
         width: 200px;
       }
@@ -199,6 +199,9 @@
       <option value="liyue2">璃月2</option>
       <option value="chenyu">沈玉</option>
       <option value="inazuma">稲妻</option>
+      <option value="inazuma2">稲妻2</option>
+      <option value="amakumo">天雲峠</option>
+      <option value="sangonomiya">海祇島</option>
       <option value="sumeru">スメール</option>
       <option value="fontaine">フォンテーヌ</option>
       <option value="natlan">ナタ</option>
@@ -221,7 +224,10 @@
       liyue1: { url: 'images/liyue1.jpg', size: [3000, 1722] },
       liyue2: { url: 'images/liyue2.jpg', size: [3000, 1722] },
       chenyu: { url: 'images/thingyoku.jpg', size: [2658, 2700] },
-      inazuma: { url: 'images/inazuma1.png', size: [3000, 3190] },
+      inazuma: { url: 'images/inazuma1.png', size: [3000, 1722] },
+      inazuma2: { url: 'images/inazuma2.png', size: [3000, 1550] },
+      amakumo: { url: 'images/amakumo.png', size: [3000, 2000] },
+      sangonomiya: { url: 'images/sangonomiya.png', size: [3000, 1800] },
       sumeru: { url: 'images/sumeru.jpg', size: [3000, 1722] },
       fontaine: { url: 'images/fontaine.jpg', size: [3000, 1722] },
       natlan: { url: 'images/natlan.jpg', size: [3000, 1722] }
@@ -240,15 +246,15 @@
     };
 
     const markValues = {
-      takara_hutu: 1,    // 普通の宝箱
-      takara_seikou: 2,  // 精巧な宝箱
-      takara_kityou: 3,  // 貴重な宝箱
-      takara_gouka: 4,   // 豪華な宝箱
-      takara_tinnmyou: 0, // 珍奇な宝箱
-      hujin: 0           // 瞳
+      takara_hutu: 1,
+      takara_seikou: 2,
+      takara_kityou: 3,
+      takara_gouka: 4,
+      takara_tinnmyou: 0,
+      hujin: 0
     };
 
-    const baseIconSize = 50;
+    const baseIconSize = 40; // 50から40に縮小
 
     function createNumberedIcon(type, number = '', size = baseIconSize) {
       let imageUrl = '';
@@ -259,7 +265,8 @@
           imageUrl = 'images/Crimson_Agate.jpg';
         } else if (currentMap === 'chenyu') {
           imageUrl = 'images/Spirit_Carp.jpg';
-        } else if (currentMap === 'inazuma') {
+        } else if (currentMap === 'inazuma' || currentMap === 'inazuma2' || 
+                   currentMap === 'amakumo' || currentMap === 'sangonomiya') {
           imageUrl = 'images/inazumahitomi.png';
         } else {
           imageUrl = 'images/iwagami.jpg';
@@ -289,7 +296,7 @@
               bottom: -10px;
               left: 50%;
               transform: translateX(-50%);
-              font-size: 12px;
+              font-size: 10px; /* 12pxから10pxに縮小 */
               background: rgba(255,255,255,0.8);
               padding: 0 2px;
               border-radius: 4px;
@@ -368,7 +375,7 @@
     function updateMarkerIcons() {
       markerLayer.eachLayer(layer => {
         const type = layer.options.customType;
-        const icon = createNumberedIcon(type, '', baseIconSize * map.getZoomScale(map.getZoom(), 0));
+        const icon = createNumberedIcon(type, '', baseIconSize * Math.min(map.getZoomScale(map.getZoom(), 0), 1.5));
         layer.setIcon(icon);
       });
     }
@@ -379,7 +386,7 @@
       if (stored) {
         const markers = JSON.parse(stored);
         markers.forEach(m => {
-          const icon = createNumberedIcon(m.type, '', baseIconSize * map.getZoomScale(map.getZoom(), 0));
+          const icon = createNumberedIcon(m.type, '', baseIconSize * Math.min(map.getZoomScale(map.getZoom(), 0), 1.5));
           const marker = L.marker([m.lat, m.lng], { icon }).addTo(markerLayer);
           marker.options.customType = m.type;
         });
@@ -410,7 +417,7 @@
       });
 
       if (!removed) {
-        const zoomScale = Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4);
+        const zoomScale = Math.min(Math.pow(map.getZoomScale(map.getZoom(), 0), 0.4), 1.5);
         const icon = createNumberedIcon(currentType, '', baseIconSize * zoomScale);
         const marker = L.marker([lat, lng], { icon }).addTo(markerLayer);
         marker.options.customType = currentType;
