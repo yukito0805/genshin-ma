@@ -45,20 +45,6 @@
       border-color: #888;
     }
 
-    .reset-button {
-      margin-top: 10px;
-      padding: 6px 12px;
-      cursor: pointer;
-      border: none;
-      border-radius: 4px;
-      background: #f0f0f0;
-      transition: background 0.2s;
-    }
-
-    .reset-button:hover {
-      background: #e0e0e0;
-    }
-
     .map-selector {
       position: fixed;
       bottom: 10px;
@@ -131,10 +117,6 @@
         font-size: 12px;
         width: 100px;
       }
-      .reset-button {
-        padding: 5px 8px;
-        font-size: 12px;
-      }
       .map-selector {
         max-width: 95%;
         padding: 8px;
@@ -172,7 +154,6 @@
       <option value="takara_gouka">豪華な宝箱</option>
       <option value="takara_tinnmyou">珍奇な宝箱</option>
     </select>
-    <button class="reset-button" onclick="resetMarkers()">チェック全削除</button>
     <div class="counts">
       <div class="count-row">
         <span>瞳: <span id="hujin-count">0</span></span>
@@ -254,7 +235,7 @@
       hujin: 0
     };
 
-    const baseIconSize = 40; // 50から40に縮小
+    const baseIconSize = 40;
 
     function createNumberedIcon(type, number = '', size = baseIconSize) {
       let imageUrl = '';
@@ -296,7 +277,7 @@
               bottom: -10px;
               left: 50%;
               transform: translateX(-50%);
-              font-size: 10px; /* 12pxから10pxに縮小 */
+              font-size: 10px;
               background: rgba(255,255,255,0.8);
               padding: 0 2px;
               border-radius: 4px;
@@ -366,20 +347,6 @@
       updateCounts();
     }
 
-    function resetMarkers() {
-      markerLayer.clearLayers();
-      localStorage.removeItem('mapMarkers_' + currentMap);
-      updateCounts();
-    }
-
-    function updateMarkerIcons() {
-      markerLayer.eachLayer(layer => {
-        const type = layer.options.customType;
-        const icon = createNumberedIcon(type, '', baseIconSize * Math.min(map.getZoomScale(map.getZoom(), 0), 1.5));
-        layer.setIcon(icon);
-      });
-    }
-
     function loadMarkers() {
       markerLayer.clearLayers();
       const stored = localStorage.getItem('mapMarkers_' + currentMap);
@@ -395,6 +362,14 @@
     }
 
     map.on('zoomend', updateMarkerIcons);
+
+    function updateMarkerIcons() {
+      markerLayer.eachLayer(layer => {
+        const type = layer.options.customType;
+        const icon = createNumberedIcon(type, '', baseIconSize * Math.min(map.getZoomScale(map.getZoom(), 0), 1.5));
+        layer.setIcon(icon);
+      });
+    }
 
     map.on('click', function (e) {
       const { lat, lng } = e.latlng;
