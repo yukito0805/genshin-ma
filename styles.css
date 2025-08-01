@@ -59,6 +59,14 @@ input[type="range"] {
     width: 100%;
 }
 
+.severity-number {
+    width: 40px;
+    text-align: center;
+    font-weight: bold;
+    color: #34495e;
+    font-size: 1em;
+}
+
 button {
     padding: 12px;
     background-color: #0984e3;
@@ -130,11 +138,19 @@ button:hover {
 }
 
 .severity-number {
-    width: 40px;
-    text-align: center;
-    font-weight: bold;
-    color: #34495e;
-    font-size: 1em;
+    width: 120px; /* スライダーと値の表示用に幅を広げる */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.severity-number input[type="range"] {
+    flex: 1;
+}
+
+.severity-number span {
+    width: 20px;
+    text-align: right;
 }
 
 .symptom-date {

@@ -2,7 +2,7 @@ document.getElementById('severity').addEventListener('input', function() {
     document.getElementById('severityValue').textContent = this.value;
 });
 
-// 日付をYYYY-MM-DD形式で取得（JSTを保証）
+// 日付を日本語形式で取得（JSTを保証）
 function getCurrentDate() {
     const now = new Date();
     const offset = 9 * 60; // JSTはUTC+9
@@ -32,7 +32,23 @@ function displaySymptom(symptom, severity, date, note, index) {
     
     const severityNumber = document.createElement('div');
     severityNumber.className = 'severity-number';
-    severityNumber.textContent = severity;
+    
+    const severityInput = document.createElement('input');
+    severityInput.type = 'range';
+    severityInput.min = '1';
+    severityInput.max = '10';
+    severityInput.value = severity;
+    
+    const severityValue = document.createElement('span');
+    severityValue.textContent = severity;
+    
+    severityInput.addEventListener('input', function() {
+        severityValue.textContent = this.value;
+        barFill.style.width = `${this.value * 10}%`;
+        const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
+        savedSymptoms[index].severity = this.value;
+        localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
+    });
     
     const symptomDate = document.createElement('div');
     symptomDate.className = 'symptom-date';
@@ -72,6 +88,8 @@ function displaySymptom(symptom, severity, date, note, index) {
     });
     
     symptomBar.appendChild(barFill);
+    severityNumber.appendChild(severityInput);
+    severityNumber.appendChild(severityValue);
     symptomHeader.appendChild(symptomName);
     symptomHeader.appendChild(symptomBar);
     symptomHeader.appendChild(severityNumber);
