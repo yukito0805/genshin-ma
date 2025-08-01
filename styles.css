@@ -48,6 +48,7 @@ input[type="text"], input[type="range"], textarea {
     border-radius: 6px;
     width: 100%;
     box-sizing: border-box;
+    touch-action: manipulation; /* スマホでのタッチ操作をスムーズに */
 }
 
 textarea {
@@ -57,14 +58,29 @@ textarea {
 
 input[type="range"] {
     width: 100%;
+    height: 30px; /* スマホでタッチしやすく */
+    -webkit-appearance: none;
+    appearance: none;
+    background: #dfe6e9;
+    border-radius: 10px;
 }
 
-.severity-number {
-    width: 40px;
-    text-align: center;
-    font-weight: bold;
-    color: #34495e;
-    font-size: 1em;
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #0984e3;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #0984e3;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 button {
@@ -138,10 +154,10 @@ button:hover {
 }
 
 .severity-number {
-    width: 120px; /* スライダーと値の表示用に幅を広げる */
+    width: 150px; /* スライダーのタッチ領域を確保 */
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
 }
 
 .severity-number input[type="range"] {
@@ -151,6 +167,8 @@ button:hover {
 .severity-number span {
     width: 20px;
     text-align: right;
+    font-weight: bold;
+    color: #34495e;
 }
 
 .symptom-date {
@@ -202,5 +220,16 @@ button:hover {
     }
     .delete-button {
         width: fit-content;
+    }
+    input[type="range"] {
+        height: 40px; /* スマホでタッチしやすく */
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        width: 25px;
+        height: 25px;
+    }
+    input[type="range"]::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
     }
 }
