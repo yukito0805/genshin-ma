@@ -1,206 +1,146 @@
-body {
-    font-family: Arial, sans-serif;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 15px;
-    background-color: #f5f5f5;
+document.getElementById('severity').addEventListener('input', function() {
+    document.getElementById('severityValue').textContent = this.value;
+});
+
+// 日付を日本語形式で取得（JSTを保証）
+function getCurrentDate() {
+    const now = new Date();
+    const offset = 9 * 60; // JSTはUTC+9
+    const jstDate = new Date(now.getTime() + (offset * 60 * 1000));
+    return jstDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+// 症状アイテムを表示する関数
+function displaySymptom(symptom, severity, date, note, index) {
+    const symptomItem = document.createElement('div');
+    symptomItem.className = 'symptom-item';
+    symptomItem.dataset.index = index;
+    
+    const symptomHeader = document.createElement('div');
+    symptomHeader.className = 'symptom-header';
+    
+    const symptomName = document.createElement('div');
+    symptomName.className = 'symptom-name';
+    symptomName.textContent = symptom;
+    
+    const symptomBar = document.createElement('div');
+    symptomBar.className = 'symptom-bar';
+    
+    const barFill = document.createElement('div');
+    barFill.className = 'bar-fill';
+    barFill.style.width = `${severity * 10}%`;
+    
+    const severityNumber = document.createElement('div');
+    severityNumber.className = 'severity-number';
+    
+    const severityInput = document.createElement('input');
+    severityInput.type = 'range';
+    severityInput.min = '1';
+    severityInput.max = '10';
+    severityInput.value = severity;
+    
+    const severityValue = document.createElement('span');
+    severityValue.textContent = severity;
+    
+    // スライダーの変更を処理
+    severityInput.addEventListener('input', function(e) {
+        console.log(`Slider ${index} changed to: ${this.value}`); // デバッグ用
+        severityValue.textContent = this.value;
+        barFill.style.width = `${this.value * 10}%`;
+        const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
+        savedSymptoms[index].severity = this.value;
+        localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
+    });
+    
+    // タッチイベントを明示的にサポート
+    severityInput.addEventListener('touchstart', function(e) {
+        e.stopPropagation(); // スクロール干渉防止
+    });
+    severityInput.addEventListener('touchmove', function(e) {
+        e.stopPropagation(); // スクロール干渉防止
+    });
+    
+    const symptomDate = document.createElement('div');
+    symptomDate.className = 'symptom-date';
+    symptomDate.textContent = date;
+    
+    const symptomNote = document.createElement('div');
+    symptomNote.className = 'symptom-note';
+    
+    const noteLabel = document.createElement('label');
+    noteLabel.textContent = '備考:';
+    
+    const noteTextarea = document.createElement('textarea');
+    noteTextarea.className = 'note-textarea';
+    noteTextarea.value = note || '';
+    noteTextarea.rows = 3;
+    noteTextarea.placeholder = 'ここに備考を入力';
+    noteTextarea.addEventListener('change', function() {
+        console.log(`Note ${index} changed to: ${this.value}`); // デバッグ用
+        const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
+        savedSymptoms[index].note = noteTextarea.value;
+        localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
+    });
+    
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'delete-button';
+    deleteButton.textContent = '削除';
+    deleteButton.addEventListener('click', function() {
+        if (confirm('このエントリを削除しますか？')) {
+            const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
+            savedSymptoms.splice(index, 1);
+            localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
+            symptomItem.remove();
+            const symptomItems = document.querySelectorAll('.symptom-item');
+            symptomItems.forEach((item, i) => {
+                item.dataset.index = i;
+            });
+        }
+    });
+    
+    symptomBar.appendChild(barFill);
+    severityNumber.appendChild(severityInput);
+    severityNumber.appendChild(severityValue);
+    symptomHeader.appendChild(symptomName);
+    symptomHeader.appendChild(symptomBar);
+    symptomHeader.appendChild(severityNumber);
+    symptomHeader.appendChild(symptomDate);
+    symptomHeader.appendChild(deleteButton);
+    symptomNote.appendChild(noteLabel);
+    symptomNote.appendChild(noteTextarea);
+    symptomItem.appendChild(symptomHeader);
+    symptomItem.appendChild(symptomNote);
+    
+    document.getElementById('symptomList').appendChild(symptomItem);
 }
 
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    font-size: 1.8em;
-    margin-bottom: 20px;
-}
+// ページ読み込み時に保存されたデータを表示
+document.addEventListener('DOMContentLoaded', function() {
+    const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
+    
+    savedSymptoms.forEach((item, index) => {
+        displaySymptom(item.symptom, item.severity, item.date, item.note, index);
+    });
+});
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-label {
-    font-weight: bold;
-    color: #34495e;
-    font-size: 1.1em;
-}
-
-input[type="text"], input[type="range"], textarea {
-    padding: 10px;
-    font-size: 1em;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-textarea {
-    resize: vertical;
-    border: 1px solid #dfe6e9;
-}
-
-input[type="range"] {
-    width: 100%;
-}
-
-.severity-number {
-    width: 40px;
-    text-align: center;
-    font-weight: bold;
-    color: #34495e;
-    font-size: 1em;
-}
-
-button {
-    padding: 12px;
-    background-color: #0984e3;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: #0652dd;
-}
-
-.delete-button {
-    padding: 8px 12px;
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
-
-.delete-button:hover {
-    background-color: #c0392b;
-}
-
-.symptom-item {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #f8fafc;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-}
-
-.symptom-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.symptom-name {
-    font-weight: bold;
-    color: #2c3e50;
-    font-size: 1.2em;
-    flex: 1;
-    min-width: 100px;
-}
-
-.symptom-bar {
-    flex: 2;
-    height: 20px;
-    background-color: #dfe6e9;
-    border-radius: 10px;
-    overflow: hidden;
-    min-width: 100px;
-}
-
-.bar-fill {
-    height: 100%;
-    background-color: #0984e3;
-    transition: width 0.3s ease;
-}
-
-.severity-number {
-    width: 120px; /* スライダーと値の表示用に幅を広げる */
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.severity-number input[type="range"] {
-    flex: 1;
-}
-
-.severity-number span {
-    width: 20px;
-    text-align: right;
-}
-
-.symptom-date {
-    width: 120px;
-    text-align: center;
-    color: #636e72;
-    font-size: 0.9em;
-}
-
-.symptom-note {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.symptom-note label {
-    font-size: 0.9em;
-    color: #636e72;
-}
-
-.note-textarea {
-    background-color: #fff;
-    border: 1px solid #dfe6e9;
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-    }
-    h1 {
-        font-size: 1.5em;
-    }
-    .symptom-item {
-        padding: 10px;
-    }
-    .symptom-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .symptom-name, .symptom-bar, .severity-number, .symptom-date, .delete-button {
-        width: 100%;
-        min-width: unset;
-    }
-    .symptom-bar {
-        height: 15px;
-    }
-    .severity-number, .symptom-date {
-        text-align: left;
-    }
-    .delete-button {
-        width: fit-content;
-    }
-}
+document.getElementById('symptomForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const symptom = document.getElementById('symptom').value;
+    const severity = document.getElementById('severity').value;
+    const date = getCurrentDate();
+    const note = '';
+    
+    // localStorageに保存
+    const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
+    const index = savedSymptoms.length;
+    savedSymptoms.push({ symptom, severity, date, note });
+    localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
+    
+    // 画面に追加
+    displaySymptom(symptom, severity, date, note, index);
+    
+    // フォームをリセット
+    document.getElementById('symptomForm').reset();
+    document.getElementById('severityValue').textContent = '1';
+});
