@@ -1,60 +1,31 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>症状メモ（声が出ない時の伝達用）</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>症状記録アプリ</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>症状メモ（声が出ない時の伝達用）</h1>
-      <span class="badge">オフライン対応・ローカル保存</span>
-    </header>
-
-    <div class="card grid" role="form">
-      <div>
-        <label for="symptom">1. 症状</label>
-        <input id="symptom" type="text" placeholder="症状を入力" />
-      </div>
-
-      <div>
-        <label for="rating">2. 良い⇄悪い の自己評価（1〜10）</label>
-        <div class="row">
-          <span class="pill">現在の評価 <strong class="value-badge" id="ratingValue">5</strong></span>
-        </div>
-        <div class="slider-wrap">
-          <input id="rating" type="range" min="1" max="10" step="1" value="5" />
-          <div class="scale-row">
-            <span>1（とても良い）</span>
-            <span>10（とても悪い）</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid" style="grid-column: 1 / -1;">
-        <div>
-          <label for="notes">3. 備考</label>
-          <textarea id="notes" placeholder="詳細を入力してください"></textarea>
-        </div>
-        <div class="actions">
-          <button id="confirmBtn" class="primary">確定</button>
-          <button id="editBtn" class="secondary hidden">編集に戻る</button>
-          <button id="clearBtn" class="secondary">クリア</button>
-          <button id="saveTxtBtn" class="secondary">TXT保存</button>
-          <button id="printBtn" class="secondary">印刷／PDF保存</button>
-        </div>
-        <div id="summary" class="summary"></div>
-      </div>
+    <h1>症状記録アプリ</h1>
+    <div class="form-container">
+      <label for="symptom">症状:</label>
+      <input type="text" id="symptom" placeholder="例: イライラ、頭痛など" required>
+      
+      <label for="severity">重症度 (1:軽い - 10:重い):</label>
+      <input type="range" id="severity" min="1" max="10" value="1">
+      <span id="severity-value">1</span>
+      
+      <label for="notes">備考:</label>
+      <textarea id="notes" rows="6" placeholder="症状の詳細やきっかけを入力"></textarea>
+      
+      <button id="submit-btn">記録する</button>
     </div>
-
-    <div class="history card">
-      <h3>履歴</h3>
-      <ul id="historyList" class="history-list"></ul>
-    </div>
+    
+    <h2>記録一覧</h2>
+    <div id="records"></div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>

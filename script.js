@@ -1,97 +1,109 @@
-const symptomEl = document.getElementById('symptom');
-const ratingEl = document.getElementById('rating');
-const ratingValueEl = document.getElementById('ratingValue');
-const notesEl = document.getElementById('notes');
+document.addEventListener('DOMContentLoaded', () => {
+  const symptomInput = document.getElementById('symptom');
+  const severityInput = document.getElementById('severity');
+  const severityValue = document.getElementById('severity-value');
+  const notesInput = document.getElementById('notes');
+  const submitBtn = document.getElementById('submit-btn');
+  const recordsDiv = document.getElementById('records');
 
-const confirmBtn = document.getElementById('confirmBtn');
-const editBtn = document.getElementById('editBtn');
-const clearBtn = document.getElementById('clearBtn');
-const saveTxtBtn = document.getElementById('saveTxtBtn');
-const printBtn = document.getElementById('printBtn');
-const summaryEl = document.getElementById('summary');
-const historyList = document.getElementById('historyList');
+  let records = JSON.parse(localStorage.getItem('records')) || [];
+  let editIndex = -1;
 
-ratingEl.addEventListener('input', () => {
-  ratingValueEl.textContent = ratingEl.value;
-});
-
-function lockFields(lock){
-  [symptomEl, ratingEl, notesEl].forEach(el => el.disabled = lock);
-  confirmBtn.classList.toggle('hidden', lock);
-  editBtn.classList.toggle('hidden', !lock);
-}
-
-function buildSummary(){
-  const now = new Date().toLocaleString();
-  return `【日時】${now}
-【症状】${symptomEl.value || '未入力'}
-【評価】${ratingEl.value}/10
-【備考】
-${notesEl.value || '未入力'}`;
-}
-
-function renderSummary(){
-  summaryEl.textContent = buildSummary();
-  summaryEl.classList.add('visible');
-}
-
-function saveToHistory(){
-  const item = {
-    id: Date.now(),
-    symptom: symptomEl.value,
-    rating: ratingEl.value,
-    notes: notesEl.value,
-    ts: new Date().toLocaleString()
-  };
-  const arr = JSON.parse(localStorage.getItem('sxHistory') || '[]');
-  arr.unshift(item);
-  localStorage.setItem('sxHistory', JSON.stringify(arr.slice(0,50)));
-  renderHistory();
-}
-
-function renderHistory(){
-  const arr = JSON.parse(localStorage.getItem('sxHistory') || '[]');
-  historyList.innerHTML = '';
-  arr.forEach(item => {
-    const li = document.createElement('li');
-    li.className = 'history-item';
-    li.textContent = `${item.ts} / ${item.symptom} / 評価 ${item.rating}`;
-    historyList.appendChild(li);
+  // シークバーの値表示を更新
+  severityInput.addEventListener('input', () => {
+    severityValue.textContent = severityInput.value;
   });
-}
 
-confirmBtn.addEventListener('click', () => {
-  renderSummary();
-  lockFields(true);
-  saveToHistory();
+  // 記録を表示
+  function displayRecords() {
+    recordsDiv.innerHTML = '';
+    records.forEach((record, index) => {
+      const recordDiv = document.createElement('div');
+      recordDiv.className = 'record';
+      recordDiv.innerHTML = `
+        <p><strong>症状:</strong> ${record.symptom}</p>
+        <p><strong>重症度:</strong> 
+          <input type="range" class="record-severity" data-index="${index}" min="1" max="10" value="${record.severity}">
+          <span class="record-severity-value">${record.severity}</span>
+        </p>
+        <p><strong>備考:</strong> ${record.notes || 'なし'}</p>
+        <p><strong>日時:</strong> ${record.date}</p>
+        <button class="edit-btn" data-index="${index}">編集</button>
+        <button class="delete-btn" data-index="${index}">削除</button>
+      `;
+      recordsDiv.appendChild(recordDiv);
+    });
+
+    // 記録一覧のシークバーにイベントリスナーを追加
+    document.querySelectorAll('.record-severity').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const index = e.target.dataset.index;
+        records[index].severity = e.target.value;
+        e.target.nextElementSibling.textContent = e.target.value;
+        localStorage.setItem('records', JSON.stringify(records));
+      });
+    });
+  }
+
+  // 記録を保存
+  function saveRecord() {
+    const record = {
+      symptom: symptomInput.value,
+      severity: severityInput.value,
+      notes: notesInput.value,
+      date: new Date().toLocaleString('ja-JP')
+    };
+
+    if (editIndex === -1) {
+      records.push(record);
+    } else {
+      records[editIndex] = record;
+      editIndex = -1;
+      submitBtn.textContent = '記録する';
+    }
+
+    localStorage.setItem('records', JSON.stringify(records));
+    displayRecords();
+    resetForm();
+  }
+
+  // フォームリセット
+  function resetForm() {
+    symptomInput.value = '';
+    severityInput.value = '1';
+    severityValue.textContent = '1';
+    notesInput.value = '';
+  }
+
+  // フォーム送信
+  submitBtn.addEventListener('click', () => {
+    if (symptomInput.value.trim()) {
+      saveRecord();
+    } else {
+      alert('症状を入力してください。');
+    }
+  });
+
+  // 編集・削除ボタンの処理
+  recordsDiv.addEventListener('click', (e) => {
+    const index = e.target.dataset.index;
+    if (e.target.classList.contains('edit-btn')) {
+      const record = records[index];
+      symptomInput.value = record.symptom;
+      severityInput.value = record.severity;
+      severityValue.textContent = record.severity;
+      notesInput.value = record.notes;
+      editIndex = index;
+      submitBtn.textContent = '更新する';
+    } else if (e.target.classList.contains('delete-btn')) {
+      if (confirm('この記録を削除しますか？')) {
+        records.splice(index, 1);
+        localStorage.setItem('records', JSON.stringify(records));
+        displayRecords();
+      }
+    }
+  });
+
+  // 初期表示
+  displayRecords();
 });
-
-editBtn.addEventListener('click', () => {
-  lockFields(false);
-  summaryEl.classList.remove('visible');
-});
-
-clearBtn.addEventListener('click', () => {
-  symptomEl.value = '';
-  ratingEl.value = 5;
-  notesEl.value = '';
-  editBtn.click();
-});
-
-saveTxtBtn.addEventListener('click', () => {
-  const blob = new Blob([buildSummary()], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = '症状メモ.txt';
-  a.click();
-  URL.revokeObjectURL(a.href);
-});
-
-printBtn.addEventListener('click', () => {
-  if(!summaryEl.classList.contains('visible')) renderSummary();
-  window.print();
-});
-
-// 初期化
-ratingEl.dispatchEvent(new Event('input'));
-renderHistory();
