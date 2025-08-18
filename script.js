@@ -43,21 +43,30 @@ function displaySymptom(symptom, severity, date, note, index) {
     severityValue.textContent = severity;
     
     // スライダーの変更を処理
-    severityInput.addEventListener('input', function(e) {
-        console.log(`Slider ${index} changed to: ${this.value}`); // デバッグ用
-        severityValue.textContent = this.value;
-        barFill.style.width = `${this.value * 10}%`;
+    function updateSeverity() {
+        console.log(`Slider ${index} changed to: ${severityInput.value}`); // デバッグ用
+        severityValue.textContent = severityInput.value;
+        barFill.style.width = `${severityInput.value * 10}%`;
         const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
-        savedSymptoms[index].severity = this.value;
+        savedSymptoms[index].severity = severityInput.value;
         localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
-    });
+    }
     
-    // タッチイベントを明示的にサポート
+    severityInput.addEventListener('input', updateSeverity);
+    severityInput.addEventListener('change', updateSeverity); // フォールバック
+    
+    // タッチイベントを明示的に処理
     severityInput.addEventListener('touchstart', function(e) {
-        e.stopPropagation(); // スクロール干渉防止
+        e.preventDefault(); // スクロールやズームを防止
+        console.log(`Touch started on slider ${index}`); // デバッグ用
     });
     severityInput.addEventListener('touchmove', function(e) {
-        e.stopPropagation(); // スクロール干渉防止
+        e.preventDefault(); // スクロールやズームを防止
+        console.log(`Touch moved on slider ${index}`); // デバッグ用
+    });
+    severityInput.addEventListener('touchend', function(e) {
+        console.log(`Touch ended on slider ${index}`); // デバッグ用
+        updateSeverity(); // タッチ終了時に更新
     });
     
     const symptomDate = document.createElement('div');
