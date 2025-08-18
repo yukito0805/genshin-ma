@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>症状記録アプリ</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>症状記録アプリ</h1>
+    <div class="form-container">
+      <label for="symptom">症状:</label>
+      <input type="text" id="symptom" placeholder="例: イライラ、頭痛など" required>
+      
+      <label for="severity">重症度 (1:軽い - 10:重い):</label>
+      <input type="range" id="severity" min="1" max="10" value="1">
+      <span id="severity-value">1</span>
+      
+      <label for="notes">備考:</label>
+      <textarea id="notes" rows="6" placeholder="症状の詳細やきっかけを入力"></textarea>
+      
+      <button id="submit-btn">記録する</button>
+    </div>
+    
+    <h2>記録一覧</h2>
+    <div id="records"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
