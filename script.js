@@ -1,155 +1,97 @@
-document.getElementById('severity').addEventListener('input', function() {
-    document.getElementById('severityValue').textContent = this.value;
+const symptomEl = document.getElementById('symptom');
+const ratingEl = document.getElementById('rating');
+const ratingValueEl = document.getElementById('ratingValue');
+const notesEl = document.getElementById('notes');
+
+const confirmBtn = document.getElementById('confirmBtn');
+const editBtn = document.getElementById('editBtn');
+const clearBtn = document.getElementById('clearBtn');
+const saveTxtBtn = document.getElementById('saveTxtBtn');
+const printBtn = document.getElementById('printBtn');
+const summaryEl = document.getElementById('summary');
+const historyList = document.getElementById('historyList');
+
+ratingEl.addEventListener('input', () => {
+  ratingValueEl.textContent = ratingEl.value;
 });
 
-// 日付を日本語形式で取得（JSTを保証）
-function getCurrentDate() {
-    const now = new Date();
-    const offset = 9 * 60; // JSTはUTC+9
-    const jstDate = new Date(now.getTime() + (offset * 60 * 1000));
-    return jstDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+function lockFields(lock){
+  [symptomEl, ratingEl, notesEl].forEach(el => el.disabled = lock);
+  confirmBtn.classList.toggle('hidden', lock);
+  editBtn.classList.toggle('hidden', !lock);
 }
 
-// 症状アイテムを表示する関数
-function displaySymptom(symptom, severity, date, note, index) {
-    const symptomItem = document.createElement('div');
-    symptomItem.className = 'symptom-item';
-    symptomItem.dataset.index = index;
-    
-    const symptomHeader = document.createElement('div');
-    symptomHeader.className = 'symptom-header';
-    
-    const symptomName = document.createElement('div');
-    symptomName.className = 'symptom-name';
-    symptomName.textContent = symptom;
-    
-    const symptomBar = document.createElement('div');
-    symptomBar.className = 'symptom-bar';
-    
-    const barFill = document.createElement('div');
-    barFill.className = 'bar-fill';
-    barFill.style.width = `${severity * 10}%`;
-    
-    const severityNumber = document.createElement('div');
-    severityNumber.className = 'severity-number';
-    
-    const severityInput = document.createElement('input');
-    severityInput.type = 'range';
-    severityInput.min = '1';
-    severityInput.max = '10';
-    severityInput.value = severity;
-    
-    const severityValue = document.createElement('span');
-    severityValue.textContent = severity;
-    
-    // スライダーの変更を処理
-    function updateSeverity() {
-        console.log(`Slider ${index} changed to: ${severityInput.value}`); // デバッグ用
-        severityValue.textContent = severityInput.value;
-        barFill.style.width = `${severityInput.value * 10}%`;
-        const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
-        savedSymptoms[index].severity = severityInput.value;
-        localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
-    }
-    
-    severityInput.addEventListener('input', updateSeverity);
-    severityInput.addEventListener('change', updateSeverity); // フォールバック
-    
-    // タッチイベントを明示的に処理
-    severityInput.addEventListener('touchstart', function(e) {
-        e.preventDefault(); // スクロールやズームを防止
-        console.log(`Touch started on slider ${index}`); // デバッグ用
-    });
-    severityInput.addEventListener('touchmove', function(e) {
-        e.preventDefault(); // スクロールやズームを防止
-        console.log(`Touch moved on slider ${index}`); // デバッグ用
-    });
-    severityInput.addEventListener('touchend', function(e) {
-        console.log(`Touch ended on slider ${index}`); // デバッグ用
-        updateSeverity(); // タッチ終了時に更新
-    });
-    
-    const symptomDate = document.createElement('div');
-    symptomDate.className = 'symptom-date';
-    symptomDate.textContent = date;
-    
-    const symptomNote = document.createElement('div');
-    symptomNote.className = 'symptom-note';
-    
-    const noteLabel = document.createElement('label');
-    noteLabel.textContent = '備考:';
-    
-    const noteTextarea = document.createElement('textarea');
-    noteTextarea.className = 'note-textarea';
-    noteTextarea.value = note || '';
-    noteTextarea.rows = 3;
-    noteTextarea.placeholder = 'ここに備考を入力';
-    noteTextarea.addEventListener('change', function() {
-        console.log(`Note ${index} changed to: ${this.value}`); // デバッグ用
-        const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
-        savedSymptoms[index].note = noteTextarea.value;
-        localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
-    });
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'delete-button';
-    deleteButton.textContent = '削除';
-    deleteButton.addEventListener('click', function() {
-        if (confirm('このエントリを削除しますか？')) {
-            const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
-            savedSymptoms.splice(index, 1);
-            localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
-            symptomItem.remove();
-            const symptomItems = document.querySelectorAll('.symptom-item');
-            symptomItems.forEach((item, i) => {
-                item.dataset.index = i;
-            });
-        }
-    });
-    
-    symptomBar.appendChild(barFill);
-    severityNumber.appendChild(severityInput);
-    severityNumber.appendChild(severityValue);
-    symptomHeader.appendChild(symptomName);
-    symptomHeader.appendChild(symptomBar);
-    symptomHeader.appendChild(severityNumber);
-    symptomHeader.appendChild(symptomDate);
-    symptomHeader.appendChild(deleteButton);
-    symptomNote.appendChild(noteLabel);
-    symptomNote.appendChild(noteTextarea);
-    symptomItem.appendChild(symptomHeader);
-    symptomItem.appendChild(symptomNote);
-    
-    document.getElementById('symptomList').appendChild(symptomItem);
+function buildSummary(){
+  const now = new Date().toLocaleString();
+  return `【日時】${now}
+【症状】${symptomEl.value || '未入力'}
+【評価】${ratingEl.value}/10
+【備考】
+${notesEl.value || '未入力'}`;
 }
 
-// ページ読み込み時に保存されたデータを表示
-document.addEventListener('DOMContentLoaded', function() {
-    const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
-    
-    savedSymptoms.forEach((item, index) => {
-        displaySymptom(item.symptom, item.severity, item.date, item.note, index);
-    });
+function renderSummary(){
+  summaryEl.textContent = buildSummary();
+  summaryEl.classList.add('visible');
+}
+
+function saveToHistory(){
+  const item = {
+    id: Date.now(),
+    symptom: symptomEl.value,
+    rating: ratingEl.value,
+    notes: notesEl.value,
+    ts: new Date().toLocaleString()
+  };
+  const arr = JSON.parse(localStorage.getItem('sxHistory') || '[]');
+  arr.unshift(item);
+  localStorage.setItem('sxHistory', JSON.stringify(arr.slice(0,50)));
+  renderHistory();
+}
+
+function renderHistory(){
+  const arr = JSON.parse(localStorage.getItem('sxHistory') || '[]');
+  historyList.innerHTML = '';
+  arr.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.textContent = `${item.ts} / ${item.symptom} / 評価 ${item.rating}`;
+    historyList.appendChild(li);
+  });
+}
+
+confirmBtn.addEventListener('click', () => {
+  renderSummary();
+  lockFields(true);
+  saveToHistory();
 });
 
-document.getElementById('symptomForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const symptom = document.getElementById('symptom').value;
-    const severity = document.getElementById('severity').value;
-    const date = getCurrentDate();
-    const note = '';
-    
-    // localStorageに保存
-    const savedSymptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
-    const index = savedSymptoms.length;
-    savedSymptoms.push({ symptom, severity, date, note });
-    localStorage.setItem('symptoms', JSON.stringify(savedSymptoms));
-    
-    // 画面に追加
-    displaySymptom(symptom, severity, date, note, index);
-    
-    // フォームをリセット
-    document.getElementById('symptomForm').reset();
-    document.getElementById('severityValue').textContent = '1';
+editBtn.addEventListener('click', () => {
+  lockFields(false);
+  summaryEl.classList.remove('visible');
 });
+
+clearBtn.addEventListener('click', () => {
+  symptomEl.value = '';
+  ratingEl.value = 5;
+  notesEl.value = '';
+  editBtn.click();
+});
+
+saveTxtBtn.addEventListener('click', () => {
+  const blob = new Blob([buildSummary()], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '症状メモ.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+printBtn.addEventListener('click', () => {
+  if(!summaryEl.classList.contains('visible')) renderSummary();
+  window.print();
+});
+
+// 初期化
+ratingEl.dispatchEvent(new Event('input'));
+renderHistory();

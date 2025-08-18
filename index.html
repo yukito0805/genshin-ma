@@ -1,28 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>症状トラッカー</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>症状メモ（声が出ない時の伝達用）</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>症状トラッカー</h1>
-        <form id="symptomForm">
-            <div class="form-group">
-                <label for="symptom">症状:</label>
-                <input type="text" id="symptom" name="symptom" required>
-            </div>
-            <div class="form-group">
-                <label for="severity">症状の強さ (1-10):</label>
-                <input type="range" id="severity" name="severity" min="1" max="10" value="1">
-                <span id="severityValue">1</span>
-            </div>
-            <button type="submit">追加</button>
-        </form>
-        <div id="symptomList"></div>
+  <div class="container">
+    <header>
+      <h1>症状メモ（声が出ない時の伝達用）</h1>
+      <span class="badge">オフライン対応・ローカル保存</span>
+    </header>
+
+    <div class="card grid" role="form">
+      <div>
+        <label for="symptom">1. 症状</label>
+        <input id="symptom" type="text" placeholder="症状を入力" />
+      </div>
+
+      <div>
+        <label for="rating">2. 良い⇄悪い の自己評価（1〜10）</label>
+        <div class="row">
+          <span class="pill">現在の評価 <strong class="value-badge" id="ratingValue">5</strong></span>
+        </div>
+        <div class="slider-wrap">
+          <input id="rating" type="range" min="1" max="10" step="1" value="5" />
+          <div class="scale-row">
+            <span>1（とても良い）</span>
+            <span>10（とても悪い）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-column: 1 / -1;">
+        <div>
+          <label for="notes">3. 備考</label>
+          <textarea id="notes" placeholder="詳細を入力してください"></textarea>
+        </div>
+        <div class="actions">
+          <button id="confirmBtn" class="primary">確定</button>
+          <button id="editBtn" class="secondary hidden">編集に戻る</button>
+          <button id="clearBtn" class="secondary">クリア</button>
+          <button id="saveTxtBtn" class="secondary">TXT保存</button>
+          <button id="printBtn" class="secondary">印刷／PDF保存</button>
+        </div>
+        <div id="summary" class="summary"></div>
+      </div>
     </div>
-    <script src="script.js"></script>
+
+    <div class="history card">
+      <h3>履歴</h3>
+      <ul id="historyList" class="history-list"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
